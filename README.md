@@ -274,3 +274,82 @@ Search Jobs              |   ✓    |    ✓     |     ✓
 Generate Reports         |   ✓    |    ✗     |     ✗
 Manage Categories        |   ✓    |    ✗     |     ✗
 Contact Support          |   ✓    |    ✓     |     ✓
+
+
+
+### BUILDING THE FRONTEND
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+# Create a new React project using Vite
+npm create vite@latest job-portal -- --template react
+
+# Navigate into the project directory
+cd job-portal
+
+# Install dependencies
+npm install
+
+# Create the directory structure inside the src folder
+mkdir -p src/{components,pages,services,context,utils}
+mkdir -p src/components/{admin,employer,jobseeker,shared}
+mkdir -p src/components/admin/{Dashboard,Reports,ContentManagement}
+mkdir -p src/components/employer/{Profile,Jobs,Applications}
+mkdir -p src/components/jobseeker/{Profile,Jobs,Applications}
+mkdir -p src/components/shared/{Layout,Forms,UI}
+mkdir -p src/services/{api,helpers}
+
+# Create component files
+touch src/components/admin/Dashboard/{Statistics,UserManagement,SystemConfig}.jsx
+touch src/components/admin/Reports/{UserReport,ActivityReport}.jsx
+touch src/components/admin/ContentManagement/{Categories,SystemNotifications}.jsx
+touch src/components/employer/Profile/{CompanyProfile,CompanySettings}.jsx
+touch src/components/employer/Jobs/{CreateJob,EditJob,JobList}.jsx
+touch src/components/employer/Applications/{ApplicationList,ApplicationDetails,InterviewScheduler}.jsx
+touch src/components/jobseeker/Profile/{PersonalProfile,ResumeBuilder,SkillsAssessment}.jsx
+touch src/components/jobseeker/Jobs/{JobSearch,SavedJobs,JobAlerts}.jsx
+touch src/components/jobseeker/Applications/{MyApplications,ApplicationStatus}.jsx
+touch src/components/shared/Layout/{Navbar,Footer}.jsx
+touch src/components/shared/Forms/{InputField,FileUpload}.jsx
+touch src/components/shared/UI/{Modal,Button,Card}.jsx
+
+# Create pages
+touch src/pages/{Home,About,Contact,NotFound}.jsx
+
+# Create service files
+touch src/services/api/{auth,job,user}.js
+touch src/services/helpers/{storage,notification}.js
+
+# Create context files
+touch src/context/{AuthContext,ThemeContext}.jsx
+
+# Create utility files
+touch src/utils/{validation,formatters}.js
+
+# Install routing
+npm install react-router-dom
+
+# Install styling and UI libraries
+npm install @mui/material @emotion/react @emotion/styled
+npm install @mui/icons-material
+npm install tailwindcss postcss autoprefixer
+
+# Install form handling
+npm install react-hook-form yup @hookform/resolvers
+
+# Install state management
+npm install @reduxjs/toolkit react-redux
+
+# Install HTTP client
+npm install axios
+
+# Install utilities
+npm install date-fns
+npm install classnames
+
+# Initialize Tailwind CSS
+npx tailwindcss init -p
+
