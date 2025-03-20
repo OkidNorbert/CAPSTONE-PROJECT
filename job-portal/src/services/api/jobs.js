@@ -56,6 +56,14 @@ export const getMyApplications = async () => {
 
 // Get employer jobs
 export const getEmployerJobs = async () => {
-  const response = await api.get('/employer/jobs');
-  return response.data;
+  try {
+    const response = await api.get('/employer/jobs');
+    // Ensure we always return an array
+    return Array.isArray(response.data) ? response.data :
+           Array.isArray(response.data.data) ? response.data.data :
+           response.data.jobs || [];
+  } catch (error) {
+    console.error('Error in getEmployerJobs:', error);
+    throw error;
+  }
 }; 

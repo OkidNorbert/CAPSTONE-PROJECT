@@ -18,14 +18,13 @@ const JobList = () => {
     try {
       setLoading(true);
       const response = await getEmployerJobs();
-      if (!Array.isArray(response.data)) {
-        console.error('Invalid response format: expected an array');
-        setJobs([]);
-        setError('Invalid data format received from server');
-        toast.error('Failed to load jobs properly');
-        return;
-      }
-      setJobs(response.data);
+      
+      // Handle both array and object response formats
+      const jobsData = Array.isArray(response) ? response : 
+                      Array.isArray(response.data) ? response.data :
+                      response.jobs || [];
+                      
+      setJobs(jobsData);
       setError(null);
     } catch (err) {
       console.error('Error fetching jobs:', err);
@@ -55,57 +54,74 @@ const JobList = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+      <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Job Postings
-        </h2>
-        <button
-          onClick={() => setShowCreateJob(true)}
-          className={cn(
-            "button-gradient px-6 py-2 rounded-full",
-            "text-sm font-medium",
-            "hover-effect"
-          )}
-        >
-          Create New Job
-        </button>
-      </div>
+    <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-6 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Job Postings
+              </h2>
+              <button
+                onClick={() => setShowCreateJob(true)}
+                className={cn(
+                  "button-gradient px-6 py-2 rounded-full",
+                  "text-sm font-medium",
+                  "hover-effect"
+                )}
+              >
+                Create New Job
+              </button>
+            </div>
 
-      {showCreateJob ? (
-        <CreateJob
-          onSubmit={handleCreateJob}
-          onCancel={() => setShowCreateJob(false)}
-        />
-      ) : (
-        <div className="grid grid-cols-1 gap-6">
-          {error && (
-            <div className="text-center text-red-600 dark:text-red-400">
-              {error}
-            </div>
-          )}
-          {jobs.length === 0 ? (
-            <div className="text-center text-gray-600 dark:text-gray-400">
-              No jobs posted yet
-            </div>
-          ) : (
-            jobs.map(job => (
-              <JobCard
-                key={job.id}
-                job={job}
-                onUpdate={fetchJobs}
-              />
-            ))
-          )}
+            {showCreateJob ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                <CreateJob
+                  onSubmit={handleCreateJob}
+                  onCancel={() => setShowCreateJob(false)}
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {error && (
+                  <div className="text-center p-4 bg-red-50 dark:bg-red-900/10 rounded-lg">
+                    <div className="text-red-600 dark:text-red-400">
+                      {error}
+                    </div>
+                  </div>
+                )}
+                {jobs.length === 0 ? (
+                  <div className="text-center p-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="text-gray-600 dark:text-gray-400">
+                      No jobs posted yet
+                    </div>
+                  </div>
+                ) : (
+                  jobs.map(job => (
+                    <div key={job.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                      <JobCard
+                        job={job}
+                        onUpdate={fetchJobs}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

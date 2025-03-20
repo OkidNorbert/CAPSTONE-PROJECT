@@ -20,7 +20,15 @@ const JobDetail = () => {
         setLoading(true);
         setError(null);
         const data = await getJobById(id);
-        setJob(data);
+        // Ensure skills are properly formatted
+        const formattedJob = {
+          ...data,
+          skills: Array.isArray(data.skills) ? data.skills :
+                  typeof data.skills === 'string' ? data.skills.split(',').map(s => s.trim()) :
+                  data.skills ? JSON.parse(data.skills) :
+                  []
+        };
+        setJob(formattedJob);
       } catch (error) {
         console.error('Error fetching job details:', error);
         setError('Failed to load job details. Please try again later.');
@@ -190,7 +198,8 @@ const JobDetail = () => {
             </div>
           )}
           
-          {job.skills && job.skills.length > 0 && (
+          {/* Skills section */}
+          {job.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills</h3>
               <div className="flex flex-wrap gap-2">
