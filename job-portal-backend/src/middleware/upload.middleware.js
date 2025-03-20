@@ -20,9 +20,9 @@ const storage = multer.diskStorage({
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    // Create unique filename: userId_timestamp_originalname
-    const uniqueSuffix = `${req.user.id}_${Date.now()}`;
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    // Create unique filename: timestamp_originalname
+    const uniqueSuffix = Date.now();
+    cb(null, `${uniqueSuffix}_${file.originalname}`);
   }
 });
 
@@ -73,14 +73,14 @@ const upload = multer({
   }
 });
 
-// Export middleware functions
-exports.uploadResume = upload.single('resume');
-exports.uploadProfilePicture = upload.single('profilePicture');
-exports.uploadCompanyLogo = upload.single('companyLogo');
-exports.uploadDocuments = upload.array('documents', 5); // Max 5 documents
+// Create middleware functions
+const uploadResume = upload.single('resume');
+const uploadProfilePicture = upload.single('profilePicture');
+const uploadCompanyLogo = upload.single('companyLogo');
+const uploadDocuments = upload.array('documents', 5); // Max 5 documents
 
 // Error handler middleware
-exports.handleUploadError = (err, req, res, next) => {
+const handleUploadError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
@@ -99,4 +99,12 @@ exports.handleUploadError = (err, req, res, next) => {
   }
   
   next();
+};
+
+module.exports = {
+  uploadResume,
+  uploadProfilePicture,
+  uploadCompanyLogo,
+  uploadDocuments,
+  handleUploadError
 };

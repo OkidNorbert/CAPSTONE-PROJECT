@@ -3,7 +3,7 @@ const router = express.Router();
 const { protect } = require('../middleware/auth.middleware');
 const { isEmployer } = require('../middleware/roleCheck.middleware');
 const { validateJobPosting, validateCompanyProfile } = require('../middleware/validation.middleware');
-const { uploadCompanyLogo } = require('../middleware/upload.middleware');
+const { uploadCompanyLogo, handleUploadError } = require('../middleware/upload.middleware');
 
 
 // Import controllers
@@ -41,7 +41,7 @@ router.get('/dashboard/recent-applications', protect, isEmployer, getRecentAppli
 // Profile Routes
 router.get('/profile', protect, isEmployer, getCompanyProfile);
 router.put('/profile', protect, isEmployer, validateCompanyProfile, updateCompanyProfile);
-router.post('/profile/logo', protect, isEmployer, uploadCompanyLogo, handleLogoUpload);
+router.post('/profile/logo', protect, isEmployer, uploadCompanyLogo, handleUploadError, handleLogoUpload);
 router.put('/settings', protect, isEmployer, updateCompanySettings);
 
 // Job Management Routes
