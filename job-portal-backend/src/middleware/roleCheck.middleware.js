@@ -1,7 +1,7 @@
 const User = require('../models/user.model');
 
 // Check if user has required role
-exports.checkRole = (roles) => {
+const checkRole = (roles) => {
   return async (req, res, next) => {
     try {
       const user = await User.findById(req.user.id);
@@ -24,7 +24,7 @@ exports.checkRole = (roles) => {
 };
 
 // Check if user is an employer
-exports.isEmployer = (req, res, next) => {
+const isEmployer = (req, res, next) => {
   if (!req.user || req.user.role !== 'employer') {
     return res.status(403).json({ message: 'Access denied. Employer role required.' });
   }
@@ -32,7 +32,7 @@ exports.isEmployer = (req, res, next) => {
 };
 
 // Check if user is a jobseeker
-exports.isJobseeker = (req, res, next) => {
+const isJobseeker = (req, res, next) => {
   if (!req.user || req.user.role !== 'jobseeker') {
     return res.status(403).json({ message: 'Access denied. Jobseeker role required.' });
   }
@@ -40,9 +40,19 @@ exports.isJobseeker = (req, res, next) => {
 };
 
 // Check if user is an admin
-exports.isAdmin = (req, res, next) => {
+const isAdmin = (req, res, next) => {
   if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied. Admin role required.'
+    });
   }
   next();
+};
+
+module.exports = {
+  checkRole,
+  isEmployer,
+  isJobseeker,
+  isAdmin
 };

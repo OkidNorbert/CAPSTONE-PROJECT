@@ -157,15 +157,34 @@ exports.uploadResume = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Create the resume URL
-    const resumeUrl = `/uploads/resumes/${req.file.filename}`;
+    // Get existing resumes or initialize empty array
+    let resumes = [];
+    try {
+      resumes = JSON.parse(user.resume || '[]');
+    } catch (e) {
+      resumes = [];
+    }
 
-    // Update resume URL
-    await user.update({ resume: resumeUrl });
+    // Create new resume entry
+    const newResume = {
+      id: `resume_${Date.now()}`,
+      originalName: req.file.originalname,
+      url: `/uploads/resumes/${req.file.filename}`,
+      uploadedAt: new Date()
+    };
+
+    // Add new resume to array
+    resumes.push(newResume);
+
+    // Update user with new resumes array
+    await user.update({
+      resume: JSON.stringify(resumes)
+    });
 
     res.json({
       message: 'Resume uploaded successfully',
-      resumeUrl
+      resumeId: newResume.id,
+      resumeUrl: newResume.url
     });
   } catch (error) {
     console.error('Error uploading resume:', error);

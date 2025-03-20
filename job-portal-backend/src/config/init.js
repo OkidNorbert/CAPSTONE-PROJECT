@@ -12,7 +12,8 @@ const createUploadDirectories = () => {
   ];
 
   directories.forEach(dir => {
-    const fullPath = path.join(__dirname, '..', '..', dir);
+    // Use absolute path from project root
+    const fullPath = path.join(process.cwd(), dir);
     if (!fs.existsSync(fullPath)) {
       fs.mkdirSync(fullPath, { recursive: true });
       console.log(`Created directory: ${fullPath}`);
