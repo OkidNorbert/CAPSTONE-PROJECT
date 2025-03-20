@@ -27,7 +27,7 @@ const Contact = () => {
     {
       icon: '📍',
       title: 'Visit Us',
-      details: ['123 Business Avenue', 'Tech District', 'Innovation City, IC 12345']
+      details: ['Uganda Christian University', 'Tech District', 'Innovation City, IC 12345']
     },
     {
       icon: '📞',
