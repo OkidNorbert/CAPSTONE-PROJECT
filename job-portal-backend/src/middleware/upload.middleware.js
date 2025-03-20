@@ -99,9 +99,9 @@ const uploadCompanyLogo = multer({
   storage: companyStorage,
   fileFilter: imageFileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024 // 5MB
   }
-}).single('companyLogo');
+}).single('profilePicture');
 
 // Wrapper middleware functions that combine upload and error handling
 const uploadProfilePictureMiddleware = (req, res, next) => {

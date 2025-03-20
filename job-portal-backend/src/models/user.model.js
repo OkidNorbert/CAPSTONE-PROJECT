@@ -111,22 +111,92 @@ const User = sequelize.define('User', {
   },
   // Employer specific fields
   companyName: {
-    type: DataTypes.STRING
-  },
-  companyLogo: {
-    type: DataTypes.STRING
-  },
-  companyWebsite: {
-    type: DataTypes.STRING
-  },
-  companyLocation: {
-    type: DataTypes.STRING
-  },
-  companyDescription: {
-    type: DataTypes.TEXT
+    type: DataTypes.STRING,
+    allowNull: true
   },
   industry: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companySize: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companyFounded: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companyWebsite: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companyDescription: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  companyLocation: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companyLogo: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  companyMission: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  companyCulture: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  companyBenefits: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  companySocialMedia: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    get() {
+      const rawValue = this.getDataValue('companySocialMedia');
+      return rawValue ? JSON.parse(rawValue) : null;
+    },
+    set(value) {
+      this.setDataValue('companySocialMedia', JSON.stringify(value));
+    }
+  },
+  notificationPreferences: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    get() {
+      const rawValue = this.getDataValue('notificationPreferences');
+      return rawValue ? JSON.parse(rawValue) : null;
+    },
+    set(value) {
+      this.setDataValue('notificationPreferences', JSON.stringify(value));
+    }
+  },
+  privacySettings: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    get() {
+      const rawValue = this.getDataValue('privacySettings');
+      return rawValue ? JSON.parse(rawValue) : null;
+    },
+    set(value) {
+      this.setDataValue('privacySettings', JSON.stringify(value));
+    }
+  },
+  applicationSettings: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    get() {
+      const rawValue = this.getDataValue('applicationSettings');
+      return rawValue ? JSON.parse(rawValue) : null;
+    },
+    set(value) {
+      this.setDataValue('applicationSettings', JSON.stringify(value));
+    }
   }
 }, {
   timestamps: true,

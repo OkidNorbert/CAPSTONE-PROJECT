@@ -13,7 +13,7 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
     companyName: '',
     industry: '',
-    companySize: '',
+    size: '',
     founded: '',
     website: '',
     description: '',
@@ -21,39 +21,70 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
     culture: '',
     benefits: '',
     location: '',
+    logo: '',
     socialMedia: {
       linkedin: '',
       twitter: '',
-      facebook: ''
+      facebook: '',
+      website: ''
+    },
+    settings: {
+      notificationPreferences: {
+        emailNotifications: true,
+        applicationUpdates: true,
+        marketingEmails: false
+      },
+      privacySettings: {
+        profileVisibility: 'public',
+        contactInfoVisibility: 'public'
+      },
+      applicationSettings: {
+        autoReply: true,
+        requireCoverLetter: false
+      }
     }
   });
 
   useEffect(() => {
     if (initialData) {
-      // Handle null or undefined values with defaults
       setFormData({
-        companyName: initialData.companyName || 'Not specified',
-        industry: initialData.industry || 'Not specified',
-        companySize: initialData.companySize || 'Not specified',
-        founded: initialData.companyFounded || 'Not specified',
-        website: initialData.companyWebsite || '',
-        description: initialData.companyDescription || 'No company description available.',
-        mission: initialData.companyMission || 'No mission statement available.',
-        culture: initialData.companyCulture || 'No culture information available.',
-        benefits: initialData.companyBenefits || 'No benefits information available.',
-        location: initialData.companyLocation || 'Not specified',
-        socialMedia: initialData.socialLinks ? 
-          JSON.parse(initialData.socialLinks) : 
-          {
-            linkedin: '',
-            twitter: '',
-            facebook: ''
+        companyName: initialData.companyName || '',
+        industry: initialData.industry || '',
+        size: initialData.size || '',
+        founded: initialData.founded || '',
+        website: initialData.website || '',
+        description: initialData.description || '',
+        mission: initialData.mission || '',
+        culture: initialData.culture || '',
+        benefits: initialData.benefits || '',
+        location: initialData.location || '',
+        logo: initialData.logo || '',
+        socialMedia: initialData.socialMedia || {
+          linkedin: '',
+          twitter: '',
+          facebook: '',
+          website: ''
+        },
+        settings: initialData.settings || {
+          notificationPreferences: {
+            emailNotifications: true,
+            applicationUpdates: true,
+            marketingEmails: false
+          },
+          privacySettings: {
+            profileVisibility: 'public',
+            contactInfoVisibility: 'public'
+          },
+          applicationSettings: {
+            autoReply: true,
+            requireCoverLetter: false
           }
+        }
       });
 
       // Set initial logo preview if exists
-      if (initialData.companyLogo) {
-        setLogoPreview(initialData.companyLogo);
+      if (initialData.logo) {
+        setLogoPreview(initialData.logo);
       }
     }
   }, [initialData]);
@@ -141,6 +172,10 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
 
   const handleLogoUpdate = (logoUrl) => {
     setLogoPreview(logoUrl);
+    setFormData(prev => ({
+      ...prev,
+      logo: logoUrl
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -158,15 +193,17 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
       const profileData = {
         companyName: formData.companyName.trim(),
         industry: formData.industry.trim(),
-        companySize: formData.companySize === 'Not specified' ? '' : formData.companySize.trim(),
-        companyFounded: formData.founded === 'Not specified' ? '' : formData.founded.trim(),
-        companyWebsite: formData.website.trim(),
-        companyDescription: formData.description === 'No company description available.' ? '' : formData.description.trim(),
-        companyMission: formData.mission === 'No mission statement available.' ? '' : formData.mission.trim(),
-        companyCulture: formData.culture === 'No culture information available.' ? '' : formData.culture.trim(),
-        companyBenefits: formData.benefits === 'No benefits information available.' ? '' : formData.benefits.trim(),
-        companyLocation: formData.location === 'Not specified' ? '' : formData.location.trim(),
-        socialLinks: JSON.stringify(formData.socialMedia)
+        size: formData.size === 'Not specified' ? '' : formData.size.trim(),
+        founded: formData.founded === 'Not specified' ? '' : formData.founded.trim(),
+        website: formData.website.trim(),
+        description: formData.description === 'No company description available.' ? '' : formData.description.trim(),
+        mission: formData.mission === 'No mission statement available.' ? '' : formData.mission.trim(),
+        culture: formData.culture === 'No culture information available.' ? '' : formData.culture.trim(),
+        benefits: formData.benefits === 'No benefits information available.' ? '' : formData.benefits.trim(),
+        location: formData.location === 'Not specified' ? '' : formData.location.trim(),
+        logo: formData.logo,
+        socialLinks: JSON.stringify(formData.socialMedia),
+        settings: JSON.stringify(formData.settings)
       };
 
       // Only include non-empty and non-default values
@@ -271,8 +308,8 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
                     </label>
                     <input
                       type="text"
-                      name="companySize"
-                      value={formData.companySize}
+                      name="size"
+                      value={formData.size}
                       onChange={handleChange}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
@@ -454,6 +491,120 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
                     {errors['socialMedia.facebook'] && (
                       <p className="mt-1 text-sm text-red-500">{errors['socialMedia.facebook']}</p>
                     )}
+                  </div>
+                </div>
+              </div>
+
+              <div className={cn(
+                "glass-effect p-6 rounded-2xl",
+                "hover-effect"
+              )}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Notification Preferences</h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Email Notifications
+                    </label>
+                    <input
+                      type="checkbox"
+                      name="settings.notificationPreferences.emailNotifications"
+                      checked={formData.settings.notificationPreferences.emailNotifications}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Application Updates
+                    </label>
+                    <input
+                      type="checkbox"
+                      name="settings.notificationPreferences.applicationUpdates"
+                      checked={formData.settings.notificationPreferences.applicationUpdates}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Marketing Emails
+                    </label>
+                    <input
+                      type="checkbox"
+                      name="settings.notificationPreferences.marketingEmails"
+                      checked={formData.settings.notificationPreferences.marketingEmails}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className={cn(
+                "glass-effect p-6 rounded-2xl",
+                "hover-effect"
+              )}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Privacy Settings</h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Profile Visibility
+                    </label>
+                    <select
+                      name="settings.privacySettings.profileVisibility"
+                      value={formData.settings.privacySettings.profileVisibility}
+                      onChange={handleChange}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Contact Info Visibility
+                    </label>
+                    <select
+                      name="settings.privacySettings.contactInfoVisibility"
+                      value={formData.settings.privacySettings.contactInfoVisibility}
+                      onChange={handleChange}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="public">Public</option>
+                      <option value="private">Private</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className={cn(
+                "glass-effect p-6 rounded-2xl",
+                "hover-effect"
+              )}>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Application Settings</h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Auto Reply
+                    </label>
+                    <input
+                      type="checkbox"
+                      name="settings.applicationSettings.autoReply"
+                      checked={formData.settings.applicationSettings.autoReply}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Require Cover Letter
+                    </label>
+                    <input
+                      type="checkbox"
+                      name="settings.applicationSettings.requireCoverLetter"
+                      checked={formData.settings.applicationSettings.requireCoverLetter}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
               </div>

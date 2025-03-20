@@ -43,9 +43,12 @@ const ProfilePictureUpload = ({
       setUploading(true);
       const response = await uploadFunction(formData);
       
-      if (response.profilePictureUrl) {
-        setPreview(response.profilePictureUrl);
-        onUploadSuccess(response.profilePictureUrl);
+      // Handle both profilePictureUrl and logo response fields
+      const uploadedUrl = response.profilePictureUrl || response.logo;
+      
+      if (uploadedUrl) {
+        setPreview(uploadedUrl);
+        onUploadSuccess(uploadedUrl);
         toast.success('Profile picture uploaded successfully');
       } else {
         throw new Error('Invalid response from server');
