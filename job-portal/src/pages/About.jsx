@@ -2,23 +2,42 @@ import { cn } from '../utils/styles';
 
 const teamMembers = [
   {
-    name: 'Sarah Johnson',
+    name: 'Okidi Norbert',
     role: 'CEO & Founder',
-    image: 'https://randomuser.me/api/portraits/women/1.jpg',
+    image: './images/Norbert.jpeg',
     bio: 'Passionate about connecting talent with opportunities.',
   },
   {
-    name: 'Michael Chen',
+    name: 'Moses Nkangi',
     role: 'CTO',
-    image: 'https://randomuser.me/api/portraits/men/2.jpg',
+    image: './images/Moses.jpeg',
     bio: 'Tech enthusiast driving innovation in recruitment.',
   },
   {
-    name: 'Emma Williams',
+    name: 'Denise Priscila M',
+    role: 'Head of HR',
+    image: './images/Denise.jpeg',
+    bio: 'Expert in human resources and talent acquisition.',
+  },
+  {
+    name: 'Absolom Orianga',
+    role: 'Head of HR',
+    image: './images/Absolom.jpeg',
+    bio: 'Expert in human resources and talent acquisition.',
+  },
+  {
+    name: 'Puoch Mabor',
+    role: 'Head of HR',
+    image: './images/Puoch.jpeg',
+    bio: 'Expert in human resources and talent acquisition.',
+  },
+  {
+    name: 'Anna Akum',
     role: 'Head of HR',
     image: 'https://randomuser.me/api/portraits/women/3.jpg',
     bio: 'Expert in human resources and talent acquisition.',
-  },
+  }
+
 ];
 
 const stats = [
