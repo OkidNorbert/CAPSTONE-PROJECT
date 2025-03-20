@@ -22,7 +22,8 @@ const {
   uploadResume,
   uploadProfilePicture,
   updatePreferences,
-  updateSocialLinks
+  updateSocialLinks,
+  getResumes
 } = require('../controllers/jobseeker/profile.controller');
 
 const {
@@ -37,6 +38,7 @@ const {
 // Profile Routes
 router.get('/profile', protect, isJobseeker, getProfile);
 router.put('/profile', protect, isJobseeker, profilePictureUploadMiddleware, updateProfile);
+router.get('/profile/resumes', protect, isJobseeker, getResumes);
 router.post('/profile/resume', protect, isJobseeker, resumeUploadMiddleware, uploadResume);
 router.post('/profile/picture', protect, isJobseeker, profilePictureUploadMiddleware, uploadProfilePicture);
 router.put('/profile/preferences', protect, isJobseeker, updatePreferences);

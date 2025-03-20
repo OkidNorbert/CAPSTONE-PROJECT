@@ -32,8 +32,17 @@ export const deleteJob = async (jobId) => {
 
 // Apply for job
 export const applyForJob = async (jobId, applicationData) => {
-  const response = await api.post(`/jobs/${jobId}/apply`, applicationData);
-  return response.data;
+  try {
+    const response = await api.post(`/jobseeker/jobs/${jobId}/apply`, {
+      resumeId: applicationData.resumeId,
+      resumePath: applicationData.resumePath,
+      coverLetter: applicationData.coverLetter || ''
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error applying for job:', error);
+    throw error;
+  }
 };
 
 // Get job applications

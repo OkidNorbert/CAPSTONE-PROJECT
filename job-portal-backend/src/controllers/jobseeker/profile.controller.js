@@ -319,3 +319,32 @@ exports.updateEducation = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get user resumes
+exports.getResumes = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['resume']
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Parse resumes from JSON string
+    const resumes = safeParseJSON(user.resume, []);
+    
+    // Map resumes to include necessary information
+    const formattedResumes = resumes.map(resume => ({
+      id: resume.id,
+      name: resume.originalName,
+      url: resume.url,
+      uploadedAt: resume.uploadedAt
+    }));
+
+    res.json(formattedResumes);
+  } catch (error) {
+    console.error('Error fetching resumes:', error);
+    res.status(500).json({ message: 'Error fetching resumes' });
+  }
+};
