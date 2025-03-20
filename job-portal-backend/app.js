@@ -57,8 +57,8 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
     
-    // Sync database (in development, you might want to use { force: true } to recreate tables)
-    await sequelize.sync();
+    // Sync database with alter option to add new columns
+    await sequelize.sync({ alter: true });
     console.log('Database synchronized successfully.');
 
     app.listen(PORT, () => {

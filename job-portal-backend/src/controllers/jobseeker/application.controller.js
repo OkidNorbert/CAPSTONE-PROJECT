@@ -60,17 +60,20 @@ exports.applyForJob = async (req, res) => {
 exports.getMyApplications = async (req, res) => {
   try {
     const applications = await Application.findAll({
-      where: { applicantId: req.user.id },
+      where: {
+        applicantId: req.user.id
+      },
+      attributes: ['id', 'jobId', 'applicantId', 'coverLetter', 'status', 'appliedAt', 'createdAt', 'updatedAt'],
       include: [
         {
           model: Job,
           as: 'job',
+          attributes: ['id', 'title', 'type', 'location', 'status'],
           include: [{
             model: User,
             as: 'company',
             attributes: ['id', 'companyName', 'companyLogo']
-          }],
-          attributes: ['id', 'title', 'type', 'location', 'status']
+          }]
         },
         {
           model: Interview,
@@ -84,7 +87,7 @@ exports.getMyApplications = async (req, res) => {
     res.json(applications);
   } catch (error) {
     console.error('Error fetching applications:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to fetch applications' });
   }
 };
 

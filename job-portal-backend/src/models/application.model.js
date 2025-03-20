@@ -25,7 +25,7 @@ const Application = sequelize.define('Application', {
   },
   resumePath: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   coverLetter: {
     type: DataTypes.TEXT,

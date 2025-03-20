@@ -3,7 +3,10 @@ const router = express.Router();
 const { protect } = require('../middleware/auth.middleware');
 const { isJobseeker } = require('../middleware/roleCheck.middleware');
 const { validateApplication } = require('../middleware/validation.middleware');
-const { uploadResume: resumeUploadMiddleware } = require('../middleware/upload.middleware');
+const { 
+  uploadResume: resumeUploadMiddleware,
+  uploadProfilePicture: profilePictureUploadMiddleware 
+} = require('../middleware/upload.middleware');
 
 // Import controllers
 const {
@@ -16,14 +19,10 @@ const {
 const {
   getProfile,
   updateProfile,
-  uploadResume: handleResumeUpload,
-  updateSkills,
-  addExperience,
-  updateExperience,
-  deleteExperience,
-  addEducation,
-  updateEducation,
-  deleteEducation
+  uploadResume,
+  uploadProfilePicture,
+  updatePreferences,
+  updateSocialLinks
 } = require('../controllers/jobseeker/profile.controller');
 
 const {
@@ -38,18 +37,10 @@ const {
 // Profile Routes
 router.get('/profile', protect, isJobseeker, getProfile);
 router.put('/profile', protect, isJobseeker, updateProfile);
-router.post('/profile/resume', protect, isJobseeker, resumeUploadMiddleware, handleResumeUpload);
-router.put('/profile/skills', protect, isJobseeker, updateSkills);
-
-// Experience Routes
-router.post('/profile/experience', protect, isJobseeker, addExperience);
-router.put('/profile/experience/:id', protect, isJobseeker, updateExperience);
-router.delete('/profile/experience/:id', protect, isJobseeker, deleteExperience);
-
-// Education Routes
-router.post('/profile/education', protect, isJobseeker, addEducation);
-router.put('/profile/education/:id', protect, isJobseeker, updateEducation);
-router.delete('/profile/education/:id', protect, isJobseeker, deleteEducation);
+router.post('/profile/resume', protect, isJobseeker, resumeUploadMiddleware, uploadResume);
+router.post('/profile/picture', protect, isJobseeker, profilePictureUploadMiddleware, uploadProfilePicture);
+router.put('/profile/preferences', protect, isJobseeker, updatePreferences);
+router.put('/profile/social-links', protect, isJobseeker, updateSocialLinks);
 
 // Job Search Routes
 router.get('/jobs/search', protect, isJobseeker, searchJobs);
