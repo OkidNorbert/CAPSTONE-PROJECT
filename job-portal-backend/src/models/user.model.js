@@ -50,12 +50,64 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE
   },
   // Job seeker specific fields
+  headline: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  summary: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  phoneNumber: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  location: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   resume: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    allowNull: true
   },
   skills: {
     type: DataTypes.JSON,
     defaultValue: []
+  },
+  experience: {
+    type: DataTypes.JSON,
+    defaultValue: []
+  },
+  educationHistory: {
+    type: DataTypes.JSON,
+    defaultValue: []
+  },
+  certifications: {
+    type: DataTypes.JSON,
+    defaultValue: []
+  },
+  languages: {
+    type: DataTypes.JSON,
+    defaultValue: []
+  },
+  preferences: {
+    type: DataTypes.JSON,
+    defaultValue: {
+      jobTypes: [],
+      locations: [],
+      industries: [],
+      salaryExpectation: null,
+      isOpenToRemote: true
+    }
+  },
+  socialLinks: {
+    type: DataTypes.JSON,
+    defaultValue: {
+      linkedin: '',
+      github: '',
+      portfolio: '',
+      twitter: ''
+    }
   },
   // Employer specific fields
   companyName: {

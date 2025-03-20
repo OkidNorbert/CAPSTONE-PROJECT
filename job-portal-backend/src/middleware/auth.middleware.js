@@ -22,7 +22,9 @@ exports.protect = async (req, res, next) => {
 
       // Find user by id
       const user = await User.findByPk(decoded.id, {
-        attributes: { exclude: ['password'] }
+        attributes: { 
+          exclude: ['password', 'resetPasswordToken', 'resetPasswordExpires'] 
+        }
       });
 
       if (!user) {
@@ -34,6 +36,11 @@ exports.protect = async (req, res, next) => {
       next();
     } catch (error) {
       console.error('Token verification error:', error);
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(401).json({ message: 'Invalid token' });
+      } else if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({ message: 'Token expired' });
+      }
       return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   } catch (error) {

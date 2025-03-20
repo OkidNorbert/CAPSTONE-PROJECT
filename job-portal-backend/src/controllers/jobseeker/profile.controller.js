@@ -1,13 +1,14 @@
-const User = require('../../models/user.model');
+const { User } = require('../../models');
 const { uploadFile } = require('../../services/storage.service');
 
 // Get jobseeker profile
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .select('-password')
-      .populate('education')
-      .populate('experience');
+    const user = await User.findByPk(req.user.id, {
+      attributes: { 
+        exclude: ['password', 'resetPasswordToken', 'resetPasswordExpires']
+      }
+    });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -15,7 +16,8 @@ exports.getProfile = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ message: 'Failed to fetch profile' });
   }
 };
 
@@ -27,37 +29,46 @@ exports.updateProfile = async (req, res) => {
       lastName,
       headline,
       summary,
-      skills,
-      location,
       phoneNumber,
-      socialMedia
+      location,
+      skills,
+      experience,
+      educationHistory,
+      certifications,
+      languages,
+      preferences,
+      socialLinks
     } = req.body;
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Update profile information
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.profile = {
-      ...user.profile,
-      headline,
-      summary,
-      skills,
-      location,
-      phoneNumber,
-      socialMedia
-    };
+    await user.update({
+      firstName: firstName || user.firstName,
+      lastName: lastName || user.lastName,
+      headline: headline || user.headline,
+      summary: summary || user.summary,
+      phoneNumber: phoneNumber || user.phoneNumber,
+      location: location || user.location,
+      skills: skills || user.skills,
+      experience: experience || user.experience,
+      educationHistory: educationHistory || user.educationHistory,
+      certifications: certifications || user.certifications,
+      languages: languages || user.languages,
+      preferences: preferences || user.preferences,
+      socialLinks: socialLinks || user.socialLinks
+    });
 
-    await user.save();
     res.json({
       message: 'Profile updated successfully',
-      user
+      user: user.toPublicJSON()
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
   }
 };
 
@@ -68,24 +79,96 @@ exports.uploadResume = async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Upload resume to storage
-    const resumeUrl = await uploadFile(req.file, 'resumes');
+    // Create the resume URL
+    const resumeUrl = `/uploads/resumes/${req.file.filename}`;
 
     // Update resume URL
-    user.profile.resume = resumeUrl;
-    await user.save();
+    await user.update({ resume: resumeUrl });
 
     res.json({
       message: 'Resume uploaded successfully',
       resumeUrl
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error uploading resume:', error);
+    res.status(500).json({ message: 'Failed to upload resume' });
+  }
+};
+
+// Upload profile picture
+exports.uploadProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Create the profile picture URL
+    const profilePictureUrl = `/uploads/profiles/${req.file.filename}`;
+
+    // Update profile picture URL
+    await user.update({ profilePicture: profilePictureUrl });
+
+    res.json({
+      message: 'Profile picture uploaded successfully',
+      profilePictureUrl
+    });
+  } catch (error) {
+    console.error('Error uploading profile picture:', error);
+    res.status(500).json({ message: 'Failed to upload profile picture' });
+  }
+};
+
+// Update preferences
+exports.updatePreferences = async (req, res) => {
+  try {
+    const { preferences } = req.body;
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await user.update({ preferences });
+
+    res.json({
+      message: 'Preferences updated successfully',
+      preferences: user.preferences
+    });
+  } catch (error) {
+    console.error('Error updating preferences:', error);
+    res.status(500).json({ message: 'Failed to update preferences' });
+  }
+};
+
+// Update social links
+exports.updateSocialLinks = async (req, res) => {
+  try {
+    const { socialLinks } = req.body;
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await user.update({ socialLinks });
+
+    res.json({
+      message: 'Social links updated successfully',
+      socialLinks: user.socialLinks
+    });
+  } catch (error) {
+    console.error('Error updating social links:', error);
+    res.status(500).json({ message: 'Failed to update social links' });
   }
 };
 
@@ -103,13 +186,14 @@ exports.addEducation = async (req, res) => {
       description
     } = req.body;
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Add education entry
-    user.education.push({
+    const educationHistory = user.educationHistory || [];
+    educationHistory.push({
       institution,
       degree,
       field,
@@ -120,10 +204,10 @@ exports.addEducation = async (req, res) => {
       description
     });
 
-    await user.save();
+    await user.update({ educationHistory });
     res.status(201).json({
       message: 'Education added successfully',
-      education: user.education
+      educationHistory: user.educationHistory
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -133,13 +217,14 @@ exports.addEducation = async (req, res) => {
 // Update education
 exports.updateEducation = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const educationIndex = user.education.findIndex(
-      edu => edu._id.toString() === req.params.id
+    const educationHistory = user.educationHistory || [];
+    const educationIndex = educationHistory.findIndex(
+      edu => edu.id === req.params.id
     );
 
     if (educationIndex === -1) {
@@ -147,157 +232,15 @@ exports.updateEducation = async (req, res) => {
     }
 
     // Update education entry
-    user.education[educationIndex] = {
-      ...user.education[educationIndex],
+    educationHistory[educationIndex] = {
+      ...educationHistory[educationIndex],
       ...req.body
     };
 
-    await user.save();
+    await user.update({ educationHistory });
     res.json({
       message: 'Education updated successfully',
-      education: user.education[educationIndex]
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Delete education
-exports.deleteEducation = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    user.education = user.education.filter(
-      edu => edu._id.toString() !== req.params.id
-    );
-
-    await user.save();
-    res.json({
-      message: 'Education deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Add experience
-exports.addExperience = async (req, res) => {
-  try {
-    const {
-      title,
-      company,
-      location,
-      startDate,
-      endDate,
-      current,
-      description,
-      achievements
-    } = req.body;
-
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Add experience entry
-    user.experience.push({
-      title,
-      company,
-      location,
-      startDate,
-      endDate,
-      current,
-      description,
-      achievements
-    });
-
-    await user.save();
-    res.status(201).json({
-      message: 'Experience added successfully',
-      experience: user.experience
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Update experience
-exports.updateExperience = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const experienceIndex = user.experience.findIndex(
-      exp => exp._id.toString() === req.params.id
-    );
-
-    if (experienceIndex === -1) {
-      return res.status(404).json({ message: 'Experience entry not found' });
-    }
-
-    // Update experience entry
-    user.experience[experienceIndex] = {
-      ...user.experience[experienceIndex],
-      ...req.body
-    };
-
-    await user.save();
-    res.json({
-      message: 'Experience updated successfully',
-      experience: user.experience[experienceIndex]
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Delete experience
-exports.deleteExperience = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    user.experience = user.experience.filter(
-      exp => exp._id.toString() !== req.params.id
-    );
-
-    await user.save();
-    res.json({
-      message: 'Experience deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Update skills
-exports.updateSkills = async (req, res) => {
-  try {
-    const { skills } = req.body;
-
-    if (!Array.isArray(skills)) {
-      return res.status(400).json({ message: 'Skills must be an array' });
-    }
-
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Update skills
-    user.profile.skills = skills;
-    await user.save();
-
-    res.json({
-      message: 'Skills updated successfully',
-      skills: user.profile.skills
+      education: educationHistory[educationIndex]
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
