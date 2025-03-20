@@ -34,7 +34,7 @@ const teamMembers = [
   {
     name: 'Anna Akum',
     role: 'Head of HR',
-    image: 'https://randomuser.me/api/portraits/women/3.jpg',
+    image: './images/Anna.jpeg',
     bio: 'Expert in human resources and talent acquisition.',
   }
 
