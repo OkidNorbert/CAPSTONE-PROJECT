@@ -6,7 +6,7 @@ const teamMembers = [
     role: 'CEO & Founder',
     image: 'https://randomuser.me/api/portraits/women/1.jpg',
     bio: 'Passionate about connecting talent with opportunities.',
-  },
+  },//me
   {
     name: 'Michael Chen',
     role: 'CTO',
