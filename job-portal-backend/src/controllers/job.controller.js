@@ -5,98 +5,67 @@ const { Op } = require('sequelize');
 // @route   GET /api/jobs
 exports.getAllJobs = async (req, res) => {
   try {
-    const { 
-      page = 1, 
-      limit = 10, 
-      search, 
-      location, 
-      type, 
-      experienceMin, 
-      experienceMax, 
-      salaryMin, 
-      salaryMax, 
-      skills, 
-      remote, 
-      sortBy = 'createdAt', 
-      sortOrder = 'DESC' 
+    const {
+      search,
+      location,
+      type,
+      industry,
+      experience,
+      page = 1,
+      limit = 10
     } = req.query;
-    
-    // Calculate pagination
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-    
-    // Build where clause
+
     const whereClause = {
       status: 'published'
     };
-    
+
     if (search) {
       whereClause[Op.or] = [
         { title: { [Op.like]: `%${search}%` } },
         { description: { [Op.like]: `%${search}%` } }
       ];
     }
-    
+
     if (location) {
       whereClause.location = { [Op.like]: `%${location}%` };
     }
-    
+
     if (type) {
       whereClause.type = type;
     }
-    
-    if (experienceMin) {
-      whereClause.experienceMin = { [Op.gte]: parseInt(experienceMin) };
+
+    if (industry) {
+      whereClause.industry = industry;
     }
-    
-    if (experienceMax) {
-      whereClause.experienceMax = { [Op.lte]: parseInt(experienceMax) };
+
+    if (experience) {
+      whereClause.experienceMin = { [Op.lte]: parseInt(experience) };
+      whereClause.experienceMax = { [Op.gte]: parseInt(experience) };
     }
-    
-    if (salaryMin) {
-      whereClause.salaryMin = { [Op.gte]: parseInt(salaryMin) };
-    }
-    
-    if (salaryMax) {
-      whereClause.salaryMax = { [Op.lte]: parseInt(salaryMax) };
-    }
-    
-    if (remote) {
-      whereClause.remote = remote === 'true';
-    }
-    
-    // Handle skills filtering
-    if (skills) {
-      const skillsArray = skills.split(',');
-      // This assumes skills is stored as JSON array in the database
-      // The exact implementation might need adjustment based on how skills are stored
-      whereClause.skills = { [Op.overlap]: skillsArray };
-    }
-    
-    // Build order array
-    const order = [[sortBy, sortOrder]];
-    
-    // Get jobs with pagination
-    const { count, rows: jobs } = await Job.findAndCountAll({
+
+    const offset = (page - 1) * limit;
+
+    const jobs = await Job.findAndCountAll({
       where: whereClause,
       include: [{
         model: User,
         as: 'company',
-        attributes: ['id', 'companyName', 'companyLogo', 'companyLocation']
+        attributes: ['id', 'companyName', 'companyLogo', 'industry', 'companyLocation']
       }],
-      order,
-      offset,
-      limit: parseInt(limit)
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
     });
-    
+
     res.json({
-      jobs,
-      total: count,
-      page: parseInt(page),
-      pages: Math.ceil(count / parseInt(limit))
+      jobs: jobs.rows,
+      total: jobs.count,
+      totalPages: Math.ceil(jobs.count / limit),
+      currentPage: parseInt(page)
     });
   } catch (error) {
     console.error('Error getting jobs:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to get jobs' });
   }
 };
 
@@ -108,29 +77,18 @@ exports.getJobById = async (req, res) => {
       include: [{
         model: User,
         as: 'company',
-        attributes: ['id', 'companyName', 'companyLogo', 'companyDescription', 'companyLocation']
+        attributes: ['id', 'companyName', 'companyLogo', 'companyDescription', 'industry', 'companyLocation', 'companyWebsite']
       }]
     });
-    
+
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
-    
-    // Get application count
-    const applicationCount = await Application.count({
-      where: { jobId: job.id }
-    });
-    
-    // Add application count to response
-    const jobWithApplicationCount = {
-      ...job.toJSON(),
-      applicationCount
-    };
-    
-    res.json(jobWithApplicationCount);
+
+    res.json(job);
   } catch (error) {
     console.error('Error getting job:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to get job details' });
   }
 };
 
@@ -143,7 +101,7 @@ exports.createJob = async (req, res) => {
       companyId: req.user.id,
       status: 'published'
     });
-    
+
     const jobWithCompany = await Job.findByPk(job.id, {
       include: [{
         model: User,
@@ -151,11 +109,11 @@ exports.createJob = async (req, res) => {
         attributes: ['id', 'companyName', 'companyLogo']
       }]
     });
-    
+
     res.status(201).json(jobWithCompany);
   } catch (error) {
     console.error('Error creating job:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to create job' });
   }
 };
 
@@ -169,13 +127,13 @@ exports.updateJob = async (req, res) => {
         companyId: req.user.id
       }
     });
-    
+
     if (!job) {
-      return res.status(404).json({ message: 'Job not found or not authorized' });
+      return res.status(404).json({ message: 'Job not found' });
     }
-    
+
     await job.update(req.body);
-    
+
     const updatedJob = await Job.findByPk(job.id, {
       include: [{
         model: User,
@@ -183,11 +141,11 @@ exports.updateJob = async (req, res) => {
         attributes: ['id', 'companyName', 'companyLogo']
       }]
     });
-    
+
     res.json(updatedJob);
   } catch (error) {
     console.error('Error updating job:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to update job' });
   }
 };
 
@@ -201,23 +159,16 @@ exports.deleteJob = async (req, res) => {
         companyId: req.user.id
       }
     });
-    
+
     if (!job) {
-      return res.status(404).json({ message: 'Job not found or not authorized' });
+      return res.status(404).json({ message: 'Job not found' });
     }
-    
-    // Delete all applications for this job
-    await Application.destroy({
-      where: { jobId: job.id }
-    });
-    
-    // Delete the job
+
     await job.destroy();
-    
-    res.json({ message: 'Job removed successfully' });
+    res.json({ message: 'Job deleted successfully' });
   } catch (error) {
     console.error('Error deleting job:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to delete job' });
   }
 };
 
@@ -225,48 +176,25 @@ exports.deleteJob = async (req, res) => {
 // @route   POST /api/jobs/:id/apply
 exports.applyForJob = async (req, res) => {
   try {
-    const job = await Job.findByPk(req.params.id);
-    
+    const { id } = req.params;
+    const { resumePath, coverLetter } = req.body;
+
+    const job = await Job.findByPk(id);
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
-    
-    // Check if already applied
-    const existingApplication = await Application.findOne({
-      where: {
-        jobId: req.params.id,
-        applicantId: req.user.id
-      }
-    });
-    
-    if (existingApplication) {
-      return res.status(400).json({ message: 'You have already applied to this job' });
-    }
-    
+
     const application = await Application.create({
-      jobId: req.params.id,
+      jobId: id,
       applicantId: req.user.id,
-      ...req.body,
+      resumePath,
+      coverLetter,
       status: 'pending'
     });
-    
-    const applicationWithDetails = await Application.findByPk(application.id, {
-      include: [
-        {
-          model: Job,
-          attributes: ['id', 'title', 'location', 'type']
-        },
-        {
-          model: User,
-          as: 'applicant',
-          attributes: ['id', 'firstName', 'lastName', 'email']
-        }
-      ]
-    });
-    
-    res.status(201).json(applicationWithDetails);
+
+    res.status(201).json(application);
   } catch (error) {
     console.error('Error applying for job:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to apply for job' });
   }
 }; 
