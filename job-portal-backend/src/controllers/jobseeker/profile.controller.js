@@ -1,29 +1,80 @@
 const { User } = require('../../models');
 const { uploadFile } = require('../../services/storage.service');
 
+// Helper functions
+const safeParseJSON = (value, defaultValue) => {
+  if (!value || value === 'undefined' || value === 'null') {
+    return defaultValue;
+  }
+  try {
+    return typeof value === 'string' ? JSON.parse(value) : value;
+  } catch (e) {
+    return defaultValue;
+  }
+};
+
+const safeStringifyJSON = (value) => {
+  if (!value) return null;
+  return typeof value === 'string' ? value : JSON.stringify(value);
+};
+
 // Get jobseeker profile
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: { 
-        exclude: ['password', 'resetPasswordToken', 'resetPasswordExpires']
-      }
+      attributes: [
+        'id', 'email', 'firstName', 'lastName', 'role',
+        'profilePicture', 'headline', 'summary', 'phoneNumber',
+        'location', 'resume', 'skills', 'experience',
+        'educationHistory', 'certifications', 'languages',
+        'preferences', 'socialLinks', 'isEmailVerified',
+        'createdAt', 'updatedAt'
+      ]
     });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user);
+    // Parse JSON fields
+    const profile = {
+      ...user.toJSON(),
+      skills: safeParseJSON(user.skills, []),
+      experience: safeParseJSON(user.experience, []),
+      educationHistory: safeParseJSON(user.educationHistory, []),
+      certifications: safeParseJSON(user.certifications, []),
+      languages: safeParseJSON(user.languages, []),
+      preferences: safeParseJSON(user.preferences, {
+        jobTypes: [],
+        locations: [],
+        industries: [],
+        salaryExpectation: '',
+        isOpenToRemote: true
+      }),
+      socialLinks: safeParseJSON(user.socialLinks, {
+        linkedin: '',
+        github: '',
+        portfolio: '',
+        twitter: ''
+      })
+    };
+
+    res.json(profile);
   } catch (error) {
-    console.error('Error fetching profile:', error);
-    res.status(500).json({ message: 'Failed to fetch profile' });
+    console.error('Error getting profile:', error);
+    res.status(500).json({ message: 'Failed to get profile' });
   }
 };
 
 // Update jobseeker profile
 exports.updateProfile = async (req, res) => {
   try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Extract and validate fields
     const {
       firstName,
       lastName,
@@ -40,32 +91,54 @@ exports.updateProfile = async (req, res) => {
       socialLinks
     } = req.body;
 
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    // Handle file upload if present
+    let profilePicture = user.profilePicture;
+    if (req.file) {
+      profilePicture = `/uploads/profiles/${req.file.filename}`;
     }
 
-    // Update profile information
+    // Update user with properly stringified JSON
     await user.update({
-      firstName: firstName || user.firstName,
-      lastName: lastName || user.lastName,
-      headline: headline || user.headline,
-      summary: summary || user.summary,
-      phoneNumber: phoneNumber || user.phoneNumber,
-      location: location || user.location,
-      skills: skills || user.skills,
-      experience: experience || user.experience,
-      educationHistory: educationHistory || user.educationHistory,
-      certifications: certifications || user.certifications,
-      languages: languages || user.languages,
-      preferences: preferences || user.preferences,
-      socialLinks: socialLinks || user.socialLinks
+      firstName,
+      lastName,
+      headline,
+      summary,
+      phoneNumber,
+      location,
+      profilePicture,
+      skills: safeStringifyJSON(skills),
+      experience: safeStringifyJSON(experience),
+      educationHistory: safeStringifyJSON(educationHistory),
+      certifications: safeStringifyJSON(certifications),
+      languages: safeStringifyJSON(languages),
+      preferences: safeStringifyJSON(preferences),
+      socialLinks: safeStringifyJSON(socialLinks)
     });
 
-    res.json({
-      message: 'Profile updated successfully',
-      user: user.toPublicJSON()
-    });
+    // Return the updated profile with parsed JSON
+    const updatedProfile = {
+      ...user.toJSON(),
+      skills: safeParseJSON(user.skills, []),
+      experience: safeParseJSON(user.experience, []),
+      educationHistory: safeParseJSON(user.educationHistory, []),
+      certifications: safeParseJSON(user.certifications, []),
+      languages: safeParseJSON(user.languages, []),
+      preferences: safeParseJSON(user.preferences, {
+        jobTypes: [],
+        locations: [],
+        industries: [],
+        salaryExpectation: '',
+        isOpenToRemote: true
+      }),
+      socialLinks: safeParseJSON(user.socialLinks, {
+        linkedin: '',
+        github: '',
+        portfolio: '',
+        twitter: ''
+      })
+    };
+
+    res.json(updatedProfile);
   } catch (error) {
     console.error('Error updating profile:', error);
     res.status(500).json({ message: 'Failed to update profile' });

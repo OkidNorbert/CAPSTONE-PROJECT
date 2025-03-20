@@ -36,7 +36,7 @@ const {
 
 // Profile Routes
 router.get('/profile', protect, isJobseeker, getProfile);
-router.put('/profile', protect, isJobseeker, updateProfile);
+router.put('/profile', protect, isJobseeker, profilePictureUploadMiddleware, updateProfile);
 router.post('/profile/resume', protect, isJobseeker, resumeUploadMiddleware, uploadResume);
 router.post('/profile/picture', protect, isJobseeker, profilePictureUploadMiddleware, uploadProfilePicture);
 router.put('/profile/preferences', protect, isJobseeker, updatePreferences);

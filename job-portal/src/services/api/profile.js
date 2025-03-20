@@ -7,8 +7,12 @@ export const getUserProfile = async () => {
 };
 
 // Update user profile
-export const updateUserProfile = async (profileData) => {
-  const response = await api.put('/jobseeker/profile', profileData);
+export const updateUserProfile = async (formData) => {
+  const response = await api.put('/jobseeker/profile', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
   return response.data;
 };
 
