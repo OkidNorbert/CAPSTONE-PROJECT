@@ -268,7 +268,7 @@ Company Profile           |   ✓    |    ✓     |     ✗
 Create Job Postings       |   ✓    |    ✓     |     ✗
 Edit Job Postings         |   ✓    |    ✓     |     ✗
 View Applications         |   ✓    |    ✓     |     ✗
-Personal Profile          |   ✓    |    ✗     |     ✓
+Personal Profile          |   ✓    |    ✓     |     ✓
 Apply to Jobs            |   ✗    |    ✗     |     ✓
 Search Jobs              |   ✓    |    ✓     |     ✓
 Generate Reports         |   ✓    |    ✗     |     ✗

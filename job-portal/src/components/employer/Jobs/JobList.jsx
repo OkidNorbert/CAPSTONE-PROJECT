@@ -19,11 +19,19 @@ const JobList = () => {
       setError(null);
       const data = await getEmployerJobs();
       console.log('Fetched jobs:', data);
+<<<<<<< HEAD
       setJobs(Array.isArray(data) ? data : (data.jobs || []));
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setError('Failed to fetch jobs. Please try again later.');
       toast.error('Failed to fetch jobs: ' + (error.response?.data?.message || error.message));
+=======
+      setJobs(data);
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      setError('Failed to fetch jobs. Please try again later.');
+      toast.error('Failed to fetch jobs');
+>>>>>>> 4ece3fb8753913be06bb5a99ea88780892ad2f4c
     } finally {
       setLoading(false);
     }
@@ -147,4 +155,8 @@ const JobList = () => {
   );
 };
 
+<<<<<<< HEAD
 export default JobList;
+=======
+export default JobList;
+>>>>>>> 4ece3fb8753913be06bb5a99ea88780892ad2f4c
