@@ -1,0 +1,71 @@
+﻿Thought for 6 seconds### Job Portal Dashboard with Role-Based Navigation
+
+I'll create a comprehensive dashboard for your job portal application with a role-based sidebar navigation system that adapts to the three user roles: Admin, Employer, and Job Seeker.
+
+```typescriptreact project="job_portal_dashboard"
+...
+```
+
+## Dashboard Features and Implementation
+
+I've created a comprehensive dashboard for your job portal application with role-based navigation that adapts to the three user roles: Admin, Employer, and Job Seeker. Here's what's included:
+
+### 1. Role-Based Sidebar Navigation
+
+The sidebar dynamically changes based on the user's role, showing only the relevant navigation options:
+
+- **Admin Navigation**: User Management, Reports, Content Management, System Config
+- **Employer Navigation**: Company Profile, Jobs, Applications
+- **Job Seeker Navigation**: Profile, Jobs, Applications
+
+
+### 2. Collapsible Sidebar
+
+The sidebar can be collapsed in two ways:
+
+- **Icon Mode**: Collapses to show only icons, providing more screen space
+- **Mobile Mode**: Slides in/out on mobile devices
+
+
+### 3. Dashboard Cards
+
+Each role has a customized dashboard with relevant metrics:
+
+- **Admin**: Total Users, Active Jobs, Companies, Applications
+- **Employer**: Active Jobs, Applications, Interviews, Conversion Rate
+- **Job Seeker**: Applications, Saved Jobs, Interviews, Profile Completion
+
+
+### 4. Responsive Design
+
+The dashboard is fully responsive and works well on both desktop and mobile devices:
+
+- Collapsible sidebar adapts to screen size
+- Cards reflow on smaller screens
+- Mobile-optimized navigation
+
+
+### 5. User Interface Components
+
+- **Header**: Search bar and notification button
+- **User Menu**: Profile dropdown in the sidebar footer
+- **Role Switcher**: For demo purposes to easily switch between roles
+
+
+### Implementation Notes
+
+1. The sidebar uses the shadcn/ui sidebar component  for collapsible functionality
+2. The dashboard is built with Next.js App Router
+3. The UI is styled with Tailwind CSS
+4. All components are responsive and accessible
+
+
+To implement this in your project, you would:
+
+1. Add these components to your project
+2. Connect them to your authentication system
+3. Link the navigation items to your actual routes
+4. Replace the placeholder data with real data from your API
+
+
+This implementation provides a solid foundation for your job portal application, with a clean, modern interface that adapts to different user roles.
