@@ -15,7 +15,7 @@ import Contact from './pages/Contact';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import Profile from './pages/jobseeker/Profile';
-import CompanyProfile from './components/employer/Profile/CompanyProfile';
+import CompanyProfileDisplay from './components/employer/Profile/CompanyProfileDisplay';
 import JobSearchPage from './pages/JobSearch';
 import JobList from './components/employer/Jobs/JobList';
 import UserReport from './components/admin/Reports/UserReport';
@@ -91,7 +91,7 @@ function App() {
                       path="/company/profile" 
                       element={
                         <PrivateRoute role="employer">
-                          <CompanyProfile />
+                          <CompanyProfileDisplay />
                         </PrivateRoute>
                       } 
                     />

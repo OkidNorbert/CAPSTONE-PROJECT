@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getEmployerJobs } from '../../../services/api/jobs';
+import { getEmployerJobs, createJob } from '../../../services/api/jobs';
 import Button from '../../shared/UI/Button';
 import { cn } from '../../../utils/styles';
 import CreateJob from './CreateJob';
+import JobCard from './JobCard';
 
 const JobList = () => {
   const navigate = useNavigate();
@@ -13,50 +14,49 @@ const JobList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
   const fetchJobs = async () => {
     try {
       setLoading(true);
+      const response = await getEmployerJobs();
+      if (!Array.isArray(response.data)) {
+        console.error('Invalid response format: expected an array');
+        setJobs([]);
+        setError('Invalid data format received from server');
+        toast.error('Failed to load jobs properly');
+        return;
+      }
+      setJobs(response.data);
       setError(null);
-      const data = await getEmployerJobs();
-      setJobs(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
-      setError('Failed to fetch jobs. Please try again later.');
-      toast.error('Failed to fetch jobs');
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+      setError('Failed to load jobs');
+      toast.error(err.response?.data?.message || 'Failed to load jobs');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
   const handleCreateJob = async (jobData) => {
     try {
-      await createJob(jobData);
+      const response = await createJob(jobData);
       toast.success('Job posted successfully!');
       setShowCreateJob(false);
-      fetchJobs();
+      fetchJobs(); // Refresh the job list
+      return response;
     } catch (error) {
       console.error('Error creating job:', error);
-      toast.error(error.response?.data?.message || 'Failed to create job');
+      throw error;
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-red-500 mb-4">{error}</p>
-        <Button variant="primary" onClick={fetchJobs}>Try Again</Button>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -64,109 +64,44 @@ const JobList = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Posted Jobs</h1>
-        <Button 
-          variant="primary"
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Job Postings
+        </h2>
+        <button
           onClick={() => setShowCreateJob(true)}
+          className={cn(
+            "button-gradient px-6 py-2 rounded-full",
+            "text-sm font-medium",
+            "hover-effect"
+          )}
         >
-          Post New Job
-        </Button>
+          Create New Job
+        </button>
       </div>
 
       {showCreateJob ? (
-        <div className={cn(
-          "glass-effect p-6 rounded-2xl",
-          "hover-effect"
-        )}>
-          <CreateJob 
-            onSubmit={handleCreateJob}
-            onCancel={() => setShowCreateJob(false)}
-          />
-        </div>
+        <CreateJob
+          onSubmit={handleCreateJob}
+          onCancel={() => setShowCreateJob(false)}
+        />
       ) : (
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 gap-6">
+          {error && (
+            <div className="text-center text-red-600 dark:text-red-400">
+              {error}
+            </div>
+          )}
           {jobs.length === 0 ? (
-            <div className={cn(
-              "glass-effect p-8 rounded-2xl text-center",
-              "hover-effect"
-            )}>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                No Jobs Posted Yet
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Start posting jobs to find the perfect candidates for your company.
-              </p>
-              <Button 
-                variant="primary"
-                onClick={() => setShowCreateJob(true)}
-              >
-                Post Your First Job
-              </Button>
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              No jobs posted yet
             </div>
           ) : (
-            jobs.map((job) => (
-              <div
+            jobs.map(job => (
+              <JobCard
                 key={job.id}
-                className={cn(
-                  "glass-effect p-6 rounded-2xl",
-                  "hover-effect"
-                )}
-              >
-                <div className="flex flex-col md:flex-row justify-between">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                      {job.title}
-                    </h2>
-                    <div className="mt-2 space-y-1">
-                      <p className="text-gray-600 dark:text-gray-400">
-                        📍 {job.location}
-                      </p>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        💼 {job.type}
-                      </p>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        👥 {job.applications?.length || 0} Applications
-                      </p>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span className={cn(
-                        "px-3 py-1 rounded-full text-sm font-medium",
-                        job.status === 'published' 
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                      )}>
-                        {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
-                      </span>
-                      {job.remote && (
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                          Remote
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="mt-4 md:mt-0 flex flex-col items-start md:items-end justify-between">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Posted on {new Date(job.createdAt).toLocaleDateString()}
-                    </p>
-                    <div className="mt-4 flex space-x-2">
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/employer/jobs/${job.id}/applications`)}
-                      >
-                        View Applications
-                      </Button>
-                      <Button 
-                        variant="primary"
-                        size="sm"
-                        onClick={() => navigate(`/employer/jobs/${job.id}/edit`)}
-                      >
-                        Edit Job
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                job={job}
+                onUpdate={fetchJobs}
+              />
             ))
           )}
         </div>
