@@ -38,6 +38,7 @@ exports.applyForJob = async (req, res) => {
       include: [
         {
           model: Job,
+          as: 'job',
           attributes: ['id', 'title', 'location', 'type']
         },
         {
@@ -63,17 +64,17 @@ exports.getMyApplications = async (req, res) => {
       include: [
         {
           model: Job,
-          attributes: ['id', 'title', 'location', 'type'],
-          include: [
-            {
-              model: User,
-              as: 'company',
-              attributes: ['id', 'companyName', 'companyLogo']
-            }
-          ]
+          as: 'job',
+          include: [{
+            model: User,
+            as: 'company',
+            attributes: ['id', 'companyName', 'companyLogo']
+          }],
+          attributes: ['id', 'title', 'type', 'location', 'status']
         },
         {
           model: Interview,
+          as: 'interviews',
           attributes: ['id', 'date', 'time', 'type', 'location', 'notes', 'status']
         }
       ],
@@ -100,6 +101,7 @@ exports.getApplicationDetails = async (req, res) => {
       include: [
         {
           model: Job,
+          as: 'job',
           attributes: ['id', 'title', 'location', 'type', 'description', 'requirements', 'responsibilities'],
           include: [
             {
@@ -111,6 +113,7 @@ exports.getApplicationDetails = async (req, res) => {
         },
         {
           model: Interview,
+          as: 'interviews',
           attributes: ['id', 'date', 'time', 'type', 'location', 'notes', 'status']
         }
       ]
