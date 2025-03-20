@@ -16,11 +16,48 @@ const ProfileDisplay = () => {
     fetchProfile();
   }, []);
 
+  const safeParseJSON = (value, defaultValue) => {
+    if (!value || value === 'undefined' || value === 'null') {
+      return defaultValue;
+    }
+    try {
+      return typeof value === 'string' ? JSON.parse(value) : value;
+    } catch (e) {
+      console.warn('Error parsing JSON:', e);
+      return defaultValue;
+    }
+  };
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
       const data = await getUserProfile();
-      setProfile(data);
+      
+      // Parse JSON fields
+      const parsedProfile = {
+        ...data,
+        skills: safeParseJSON(data.skills, []),
+        experience: safeParseJSON(data.experience, []),
+        educationHistory: safeParseJSON(data.educationHistory, []),
+        certifications: safeParseJSON(data.certifications, []),
+        languages: safeParseJSON(data.languages, []),
+        preferences: safeParseJSON(data.preferences, {
+          jobTypes: [],
+          locations: [],
+          industries: [],
+          salaryExpectation: '',
+          isOpenToRemote: true
+        }),
+        socialLinks: safeParseJSON(data.socialLinks, {
+          linkedin: '',
+          github: '',
+          portfolio: '',
+          twitter: ''
+        })
+      };
+
+      console.log('Parsed profile data:', parsedProfile);
+      setProfile(parsedProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile. Please try again.');
@@ -166,7 +203,7 @@ const ProfileDisplay = () => {
           )}>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Skills</h2>
             <div className="flex flex-wrap gap-2">
-              {profile.skills && profile.skills.length > 0 ? (
+              {Array.isArray(profile.skills) && profile.skills.length > 0 ? (
                 profile.skills.map((skill, index) => (
                   <span
                     key={index}
@@ -191,7 +228,7 @@ const ProfileDisplay = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Preferred Job Types</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {profile.preferences?.jobTypes?.length > 0 ? (
+                  {Array.isArray(profile.preferences?.jobTypes) && profile.preferences.jobTypes.length > 0 ? (
                     profile.preferences.jobTypes.map((type, index) => (
                       <span
                         key={index}
@@ -208,7 +245,7 @@ const ProfileDisplay = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Preferred Industries</h3>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {profile.preferences?.industries?.length > 0 ? (
+                  {Array.isArray(profile.preferences?.industries) && profile.preferences.industries.length > 0 ? (
                     profile.preferences.industries.map((industry, index) => (
                       <span
                         key={index}
