@@ -6,7 +6,7 @@ const teamMembers = [
     role: 'CEO & Founder',
     image: './images/Norbert.jpeg',
     bio: 'Passionate about connecting talent with opportunities.',
-  },
+  },//me
   {
     name: 'Moses Nkangi',
     role: 'CTO',

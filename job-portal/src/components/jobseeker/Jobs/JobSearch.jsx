@@ -338,7 +338,7 @@ const JobSearch = () => {
                     <div>
                       <h2 className="text-xl font-bold text-gray-900 dark:text-white">{job.title}</h2>
                       <p className="text-gray-600 dark:text-gray-400 mt-1">
-                        {job.company?.companyName} • {job.location}
+                        {job.company?.companyName} • {job.company?.companyLocation}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">

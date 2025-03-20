@@ -38,13 +38,15 @@ exports.getApplications = async (req, res) => {
       where: whereClause,
       include: [
         {
+          model: Job,
+          as: 'job',
+          where: { companyId: req.user.id },
+          attributes: ['id', 'title', 'type', 'location']
+        },
+        {
           model: User,
           as: 'applicant',
           attributes: ['id', 'firstName', 'lastName', 'email', 'profilePicture']
-        },
-        {
-          model: Job,
-          attributes: ['id', 'title', 'location', 'type']
         },
         {
           model: Interview,
@@ -56,7 +58,7 @@ exports.getApplications = async (req, res) => {
           order: [['createdAt', 'DESC']]
         }
       ],
-      order: [['updatedAt', 'DESC']]
+      order: [['createdAt', 'DESC']]
     });
     
     res.json(applications);

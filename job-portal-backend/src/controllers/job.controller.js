@@ -81,7 +81,7 @@ exports.getAllJobs = async (req, res) => {
       include: [{
         model: User,
         as: 'company',
-        attributes: ['id', 'companyName', 'companyLogo', 'location']
+        attributes: ['id', 'companyName', 'companyLogo', 'companyLocation']
       }],
       order,
       offset,
@@ -108,7 +108,7 @@ exports.getJobById = async (req, res) => {
       include: [{
         model: User,
         as: 'company',
-        attributes: ['id', 'companyName', 'companyLogo', 'companyDescription', 'location']
+        attributes: ['id', 'companyName', 'companyLogo', 'companyDescription', 'companyLocation']
       }]
     });
     
