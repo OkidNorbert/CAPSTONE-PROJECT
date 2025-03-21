@@ -27,12 +27,12 @@ const Contact = () => {
     {
       icon: '📍',
       title: 'Visit Us',
-      details: ['123 Business Avenue', 'Tech District', 'Innovation City, IC 12345']
+      details: ['Uganda Christian University', ' Mukono', 'Uganda']
     },
     {
       icon: '📞',
       title: 'Call Us',
-      details: ['+1 (555) 123-4567', 'Mon - Fri: 9AM - 6PM']
+      details: ['+256 78413754', 'Mon - Fri: 9AM - 6PM']
     },
     {
       icon: '✉️',
