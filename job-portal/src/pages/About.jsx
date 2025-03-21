@@ -17,7 +17,7 @@ const teamMembers = [
     name: 'Denise Priscila M',
     role: 'Frontend Developer',
     image: './images/Denise.jpeg',
-    bio: 'Expert in developer the frontend of the application',
+    bio: 'Expert in UI/UX development and code splitting',
   },
   {
     name: 'Absolom Orianga',
@@ -29,7 +29,7 @@ const teamMembers = [
     name: 'Puoch Mabor',
     role: 'Tester and Deployment',
     image: './images/Puoch.jpeg',
-    bio: 'Expert in testing and deployment of an application',
+    bio: 'Expert in testing and deployment of an applications',
   },
   {
     name: 'Anna Akum',
