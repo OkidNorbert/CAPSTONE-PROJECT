@@ -27,12 +27,12 @@ const Contact = () => {
     {
       icon: '📍',
       title: 'Visit Us',
-      details: ['123 Business Avenue', 'Tech District', 'Innovation City, IC 12345']
+      details: ['34 Street Business Avenue', 'Tech District', 'Kampala City, K1234']
     },
     {
       icon: '📞',
       title: 'Call Us',
-      details: ['+1 (555) 123-4567', 'Mon - Fri: 9AM - 6PM']
+      details: ['+256 770540948', 'Mon - Fri: 9AM - 6PM']
     },
     {
       icon: '✉️',
