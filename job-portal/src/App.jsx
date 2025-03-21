@@ -14,8 +14,8 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
-import PersonalProfile from './components/jobseeker/Profile/PersonalProfile';
-import CompanyProfile from './components/employer/Profile/CompanyProfile';
+import Profile from './pages/jobseeker/Profile';
+import CompanyProfileDisplay from './components/employer/Profile/CompanyProfileDisplay';
 import JobSearchPage from './pages/JobSearch';
 import JobList from './components/employer/Jobs/JobList';
 import UserReport from './components/admin/Reports/UserReport';
@@ -49,7 +49,7 @@ function App() {
                       path="/profile" 
                       element={
                         <PrivateRoute role="jobseeker">
-                          <PersonalProfile />
+                          <Profile />
                         </PrivateRoute>
                       } 
                     />
@@ -91,7 +91,7 @@ function App() {
                       path="/company/profile" 
                       element={
                         <PrivateRoute role="employer">
-                          <CompanyProfile />
+                          <CompanyProfileDisplay />
                         </PrivateRoute>
                       } 
                     />

@@ -27,17 +27,17 @@ const Contact = () => {
     {
       icon: '📍',
       title: 'Visit Us',
-      details: ['34 Street Business Avenue', 'Tech District', 'Kampala City, K1234']
+      details: ['123 Business Avenue', 'Tech District', 'Innovation City, IC 12345']
     },
     {
       icon: '📞',
       title: 'Call Us',
-      details: ['+256 770540948', 'Mon - Fri: 9AM - 6PM']
+      details: ['+1 (555) 123-4567', 'Mon - Fri: 9AM - 6PM']
     },
     {
       icon: '✉️',
       title: 'Email Us',
-      details: ['support@jobseek.com', 'careers@jobseek.com']
+      details: ['jobseeksupport@jobseek.com', 'jobseekcareers@jobseek.com']
     }
   ];
 

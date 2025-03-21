@@ -3,6 +3,7 @@ const router = express.Router();
 const { protect } = require('../middleware/auth.middleware');
 const { isAdmin } = require('../middleware/roleCheck.middleware');
 const bcrypt = require('bcryptjs');
+const { uploadProfilePicture } = require('../middleware/upload.middleware');
 
 // Import controllers
 const {
@@ -28,6 +29,12 @@ const {
   getFinancialReport,
   exportReport
 } = require('../controllers/admin/report.controller');
+
+const {
+  getProfile,
+  updateProfile,
+  uploadProfilePicture: uploadPicture
+} = require('../controllers/admin/profile.controller');
 
 // Dashboard and System Routes
 router.get('/dashboard/stats', protect, isAdmin, getDashboardStats);
@@ -84,5 +91,10 @@ router.put('/change-password', protect, isAdmin, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+// Profile Routes
+router.get('/profile', protect, isAdmin, getProfile);
+router.put('/profile', protect, isAdmin, updateProfile);
+router.post('/profile/picture', protect, isAdmin, uploadProfilePicture, uploadPicture);
 
 module.exports = router;

@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { applyForJob } from '../../../services/api/jobs';
-import { getUserResumes } from '../../../services/api/profile';
+import { getUserResumes, uploadResume } from '../../../services/api/profile';
 import Button from '../../shared/UI/Button';
 import { cn } from '../../../utils/styles';
 
 const JobApplication = ({ jobId, onSuccess, onCancel }) => {
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [resumes, setResumes] = useState([]);
   const [formData, setFormData] = useState({
     resumeId: '',
@@ -45,22 +49,104 @@ const JobApplication = ({ jobId, onSuccess, onCancel }) => {
     }));
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a PDF or Word document');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('File size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('resume', file);
+      
+      const response = await uploadResume(formData);
+      console.log('Resume upload response in component:', response); // Debug log
+      
+      // Add the new resume to the list
+      const newResume = {
+        id: response.resumeId,
+        name: file.name,
+        originalName: file.name,
+        url: response.resumeUrl
+      };
+      
+      console.log('New resume object:', newResume); // Debug log
+      
+      setResumes(prev => {
+        console.log('Previous resumes:', prev); // Debug log
+        return [...prev, newResume];
+      });
+      
+      // Set the newly uploaded resume as the selected one
+      setFormData(prev => ({
+        ...prev,
+        resumeId: response.resumeId
+      }));
+      
+      toast.success('Resume uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading resume:', error);
+      toast.error(error.message || 'Failed to upload resume. Please try again.');
+    } finally {
+      setUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!formData.resumeId) {
-      toast.error('Please select a resume');
+      toast.error('Please select or upload a resume');
       return;
     }
 
     try {
       setSubmitting(true);
-      await applyForJob(jobId, formData);
+      
+      // Find the selected resume from the resumes array
+      const selectedResume = resumes.find(resume => resume.id === formData.resumeId);
+      
+      if (!selectedResume) {
+        toast.error('Selected resume not found. Please try again.');
+        return;
+      }
+      
+      const applicationData = {
+        resumeId: selectedResume.id,
+        resumePath: selectedResume.url,
+        coverLetter: formData.coverLetter.trim()
+      };
+
+      await applyForJob(jobId, applicationData);
       toast.success('Application submitted successfully!');
       onSuccess();
     } catch (error) {
       console.error('Error submitting application:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit application');
+      const errorMessage = error.response?.data?.message || 
+                          (error.response?.data?.errors && error.response.data.errors[0]) || 
+                          'Failed to submit application. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -86,33 +172,64 @@ const JobApplication = ({ jobId, onSuccess, onCancel }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Select Resume
+            Resume
           </label>
           {resumes.length === 0 ? (
             <div className="text-center py-4">
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                You haven't uploaded any resumes yet
+                Upload your resume to apply
               </p>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/profile/resumes')}
-              >
-                Upload Resume
-              </Button>
+              <div className="flex flex-col items-center space-y-4">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? 'Uploading...' : 'Upload Resume'}
+                </Button>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  or
+                </div>
+                <Button
+                  variant="text"
+                  onClick={() => navigate('/jobseeker/profile/resumes?tab=upload')}
+                >
+                  Manage Resumes
+                </Button>
+              </div>
             </div>
           ) : (
-            <select
-              name="resumeId"
-              value={formData.resumeId}
-              onChange={handleChange}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-              {resumes.map(resume => (
-                <option key={resume.id} value={resume.id}>
-                  {resume.title || resume.originalName}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-4">
+              <select
+                name="resumeId"
+                value={formData.resumeId}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              >
+                {resumes.map(resume => (
+                  <option key={resume.id} value={resume.id}>
+                    {resume.name || resume.originalName}
+                  </option>
+                ))}
+              </select>
+              <div className="flex justify-end">
+                <Button
+                  variant="text"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? 'Uploading...' : 'Upload Another Resume'}
+                </Button>
+              </div>
+            </div>
           )}
         </div>
 

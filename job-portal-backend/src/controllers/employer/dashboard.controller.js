@@ -4,33 +4,30 @@ const { Op } = require('sequelize');
 // Get dashboard stats
 exports.getDashboardStats = async (req, res) => {
   try {
-    // Get company's job IDs
+    // Get company's jobs with more details
     const jobs = await Job.findAll({
       where: { companyId: req.user.id },
-      attributes: ['id']
+      attributes: ['id', 'title', 'status', 'views', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+      limit: 5
     });
     
     const jobIds = jobs.map(job => job.id);
 
     // Get active jobs count
-    const activeJobs = await Job.count({
-      where: {
-        companyId: req.user.id,
-        status: 'published'
-      }
-    });
+    const activeJobs = jobs.filter(job => job.status === 'published').length;
 
     // Get total applications count
-    const totalApplications = await Application.count({
+    const totalApplications = jobIds.length > 0 ? await Application.count({
       where: {
         jobId: {
           [Op.in]: jobIds
         }
       }
-    });
+    }) : 0;
 
     // Get new applications count (last 24 hours)
-    const newApplications = await Application.count({
+    const newApplications = jobIds.length > 0 ? await Application.count({
       where: {
         jobId: {
           [Op.in]: jobIds
@@ -39,49 +36,53 @@ exports.getDashboardStats = async (req, res) => {
           [Op.gte]: new Date(new Date() - 24 * 60 * 60 * 1000)
         }
       }
-    });
+    }) : 0;
 
-    // Get views today (implement view tracking in your Job model first)
-    const viewsToday = await Job.sum('viewsToday', {
-      where: {
-        companyId: req.user.id
-      }
-    }) || 0;
+    // Get total views
+    const totalViews = jobs.reduce((sum, job) => sum + (job.views || 0), 0);
 
     res.json({
       activeJobs,
       totalApplications,
       newApplications,
-      viewsToday
+      totalViews,
+      recentJobs: jobs
     });
   } catch (error) {
     console.error('Error getting dashboard stats:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      message: 'Failed to fetch dashboard statistics',
+      error: error.message 
+    });
   }
 };
 
 // Get recent applications
 exports.getRecentApplications = async (req, res) => {
   try {
-    // Get company's job IDs
+    // First check if the employer has any jobs
     const jobs = await Job.findAll({
       where: { companyId: req.user.id },
       attributes: ['id']
     });
-    
+
+    if (jobs.length === 0) {
+      return res.json([]); // Return empty array if no jobs exist
+    }
+
     const jobIds = jobs.map(job => job.id);
 
-    // Get recent applications
     const applications = await Application.findAll({
-      where: {
-        jobId: {
-          [Op.in]: jobIds
-        }
-      },
       include: [
         {
           model: Job,
-          attributes: ['id', 'title', 'location', 'type']
+          as: 'job',
+          where: { 
+            id: {
+              [Op.in]: jobIds
+            }
+          },
+          attributes: ['id', 'title', 'location', 'type', 'status']
         },
         {
           model: User,
@@ -89,6 +90,7 @@ exports.getRecentApplications = async (req, res) => {
           attributes: ['id', 'firstName', 'lastName', 'email', 'profilePicture']
         }
       ],
+      attributes: ['id', 'status', 'resumePath', 'coverLetter', 'createdAt'],
       order: [['createdAt', 'DESC']],
       limit: 5
     });
@@ -96,6 +98,9 @@ exports.getRecentApplications = async (req, res) => {
     res.json(applications);
   } catch (error) {
     console.error('Error getting recent applications:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ 
+      message: 'Failed to fetch recent applications',
+      error: error.message 
+    });
   }
 }; 

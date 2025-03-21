@@ -82,6 +82,10 @@ const Job = sequelize.define('Job', {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
+  views: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
   expiresAt: {
     type: DataTypes.DATE,
     allowNull: false,

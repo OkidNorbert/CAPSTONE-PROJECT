@@ -5,15 +5,76 @@ const path = require('path');
 exports.getCompanyProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ['password'] }
+      attributes: [
+        'id',
+        'email',
+        'companyName',
+        'industry',
+        'companySize',
+        'companyWebsite',
+        'companyDescription',
+        'companyLocation',
+        'companyLogo',
+        'companyMission',
+        'companyCulture',
+        'companyBenefits',
+        'companySocialMedia',
+        'companyFounded',
+        'notificationPreferences',
+        'privacySettings',
+        'applicationSettings',
+        'createdAt',
+        'updatedAt'
+      ]
     });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user);
+    // Format the response
+    const formattedProfile = {
+      id: user.id,
+      email: user.email,
+      companyName: user.companyName || '',
+      industry: user.industry || '',
+      size: user.companySize || '',
+      website: user.companyWebsite || '',
+      description: user.companyDescription || '',
+      location: user.companyLocation || '',
+      logo: user.companyLogo || '',
+      mission: user.companyMission || '',
+      culture: user.companyCulture || '',
+      benefits: user.companyBenefits || '',
+      founded: user.companyFounded || '',
+      socialMedia: user.companySocialMedia ? JSON.parse(user.companySocialMedia) : {
+        linkedin: '',
+        twitter: '',
+        facebook: '',
+        website: ''
+      },
+      settings: {
+        notificationPreferences: user.notificationPreferences ? JSON.parse(user.notificationPreferences) : {
+          emailNotifications: true,
+          applicationUpdates: true,
+          marketingEmails: false
+        },
+        privacySettings: user.privacySettings ? JSON.parse(user.privacySettings) : {
+          profileVisibility: 'public',
+          contactInfoVisibility: 'public'
+        },
+        applicationSettings: user.applicationSettings ? JSON.parse(user.applicationSettings) : {
+          autoReply: true,
+          requireCoverLetter: false
+        }
+      },
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    res.json(formattedProfile);
   } catch (error) {
+    console.error('Error getting company profile:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -32,7 +93,10 @@ exports.updateCompanyProfile = async (req, res) => {
       culture,
       benefits,
       location,
-      socialMedia
+      socialMedia,
+      notificationPreferences,
+      privacySettings,
+      applicationSettings
     } = req.body;
 
     const user = await User.findByPk(req.user.id);
@@ -40,22 +104,72 @@ exports.updateCompanyProfile = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    await user.update({
-      companyName,
-      industry,
-      companyWebsite: website,
-      companyDescription: description,
-      companySize: size,
-      companyLocation: location,
-      companyMission: mission,
-      companyCulture: culture,
-      companyBenefits: benefits,
-      companySocialMedia: socialMedia,
-      companyFounded: founded
-    });
+    // Prepare update data
+    const updateData = {
+      companyName: companyName || user.companyName,
+      industry: industry || user.industry,
+      companySize: size || user.companySize,
+      companyWebsite: website || user.companyWebsite,
+      companyDescription: description || user.companyDescription,
+      companyLocation: location || user.companyLocation,
+      companyMission: mission || user.companyMission,
+      companyCulture: culture || user.companyCulture,
+      companyBenefits: benefits || user.companyBenefits,
+      companyFounded: founded || user.companyFounded,
+      companySocialMedia: socialMedia ? JSON.stringify(socialMedia) : user.companySocialMedia,
+      notificationPreferences: notificationPreferences ? JSON.stringify(notificationPreferences) : user.notificationPreferences,
+      privacySettings: privacySettings ? JSON.stringify(privacySettings) : user.privacySettings,
+      applicationSettings: applicationSettings ? JSON.stringify(applicationSettings) : user.applicationSettings
+    };
 
-    res.json({ message: 'Company profile updated successfully', user });
+    await user.update(updateData);
+
+    // Format the response
+    const formattedProfile = {
+      id: user.id,
+      email: user.email,
+      companyName: user.companyName || '',
+      industry: user.industry || '',
+      size: user.companySize || '',
+      website: user.companyWebsite || '',
+      description: user.companyDescription || '',
+      location: user.companyLocation || '',
+      logo: user.companyLogo || '',
+      mission: user.companyMission || '',
+      culture: user.companyCulture || '',
+      benefits: user.companyBenefits || '',
+      founded: user.companyFounded || '',
+      socialMedia: user.companySocialMedia ? JSON.parse(user.companySocialMedia) : {
+        linkedin: '',
+        twitter: '',
+        facebook: '',
+        website: ''
+      },
+      settings: {
+        notificationPreferences: user.notificationPreferences ? JSON.parse(user.notificationPreferences) : {
+          emailNotifications: true,
+          applicationUpdates: true,
+          marketingEmails: false
+        },
+        privacySettings: user.privacySettings ? JSON.parse(user.privacySettings) : {
+          profileVisibility: 'public',
+          contactInfoVisibility: 'public'
+        },
+        applicationSettings: user.applicationSettings ? JSON.parse(user.applicationSettings) : {
+          autoReply: true,
+          requireCoverLetter: false
+        }
+      },
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    };
+
+    res.json({ 
+      message: 'Company profile updated successfully', 
+      profile: formattedProfile 
+    });
   } catch (error) {
+    console.error('Error updating company profile:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -82,7 +196,7 @@ exports.uploadLogo = async (req, res) => {
 
     res.json({
       message: 'Logo uploaded successfully',
-      logoUrl
+      logo: logoUrl
     });
   } catch (error) {
     console.error('Error uploading logo:', error);

@@ -1,110 +1,180 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    let uploadPath = 'uploads/';
-    
-    // Determine upload directory based on file type
-    if (file.fieldname === 'resume') {
-      uploadPath += 'resumes/';
-    } else if (file.fieldname === 'profilePicture') {
-      uploadPath += 'profiles/';
-    } else if (file.fieldname === 'companyLogo') {
-      uploadPath += 'companies/';
-    } else {
-      uploadPath += 'documents/';
+// Ensure upload directories exist
+const createUploadDirs = () => {
+  const dirs = [
+    'uploads/profiles',
+    'uploads/resumes',
+    'uploads/companies'
+  ];
+  
+  dirs.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    
-    cb(null, uploadPath);
+  });
+};
+
+createUploadDirs();
+
+// Configure multer for profile picture uploads
+const profileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/profiles');
   },
   filename: (req, file, cb) => {
-    // Create unique filename: timestamp_originalname
-    const uniqueSuffix = Date.now();
-    cb(null, `${uniqueSuffix}_${file.originalname}`);
+    // Create a unique filename with timestamp and random number
+    const timestamp = Date.now();
+    const random = Math.round(Math.random() * 1E9);
+    cb(null, `${timestamp}_${random}${path.extname(file.originalname)}`);
   }
 });
 
-// File filter
-const fileFilter = (req, file, cb) => {
-  if (file.fieldname === 'resume') {
-    // Allow only PDF and DOC files for resumes
-    if (file.mimetype === 'application/pdf' || 
-        file.mimetype === 'application/msword' ||
-        file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type. Only PDF and DOC files are allowed.'), false);
-    }
-  } else if (file.fieldname === 'profilePicture' || file.fieldname === 'companyLogo') {
-    // Allow only images for profile pictures and company logos
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type. Only image files are allowed.'), false);
-    }
+// Configure multer for resume uploads
+const resumeStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/resumes');
+  },
+  filename: (req, file, cb) => {
+    // Create a unique filename with timestamp and random number
+    const timestamp = Date.now();
+    const random = Math.round(Math.random() * 1E9);
+    cb(null, `${timestamp}_${random}${path.extname(file.originalname)}`);
+  }
+});
+
+// Configure multer for company logo uploads
+const companyStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/companies');
+  },
+  filename: (req, file, cb) => {
+    // Create a unique filename with timestamp and random number
+    const timestamp = Date.now();
+    const random = Math.round(Math.random() * 1E9);
+    cb(null, `${timestamp}_${random}${path.extname(file.originalname)}`);
+  }
+});
+
+const imageFileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
   } else {
-    // For other documents, allow common file types
-    const allowedMimes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'image/jpeg',
-      'image/png',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ];
-    
-    if (allowedMimes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Invalid file type.'), false);
-    }
+    cb(new Error('Not an image! Please upload only images.'), false);
   }
 };
 
-// Configure multer
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
+const resumeFileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Please upload PDF or Word documents only.'), false);
+  }
+};
+
+const uploadProfilePicture = multer({
+  storage: profileStorage,
+  fileFilter: imageFileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   }
-});
+}).single('profilePicture');
 
-// Create middleware functions
-const uploadResume = upload.single('resume');
-const uploadProfilePicture = upload.single('profilePicture');
-const uploadCompanyLogo = upload.single('companyLogo');
-const uploadDocuments = upload.array('documents', 5); // Max 5 documents
+const uploadResume = multer({
+  storage: resumeStorage,
+  fileFilter: resumeFileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit for resumes
+  }
+}).single('resume');
 
-// Error handler middleware
-const handleUploadError = (err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
+const uploadCompanyLogo = multer({
+  storage: companyStorage,
+  fileFilter: imageFileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB
+  }
+}).single('profilePicture');
+
+// Wrapper middleware functions that combine upload and error handling
+const uploadProfilePictureMiddleware = (req, res, next) => {
+  uploadProfilePicture(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size too large. Maximum size is 5MB.'
+        });
+      }
       return res.status(400).json({
-        message: 'File too large. Maximum size is 5MB.'
+        success: false,
+        message: err.message
+      });
+    } else if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
       });
     }
-    return res.status(400).json({
-      message: 'File upload error: ' + err.message
-    });
-  }
-  
-  if (err) {
-    return res.status(400).json({
-      message: err.message
-    });
-  }
-  
-  next();
+    next();
+  });
+};
+
+const uploadResumeMiddleware = (req, res, next) => {
+  uploadResume(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size too large. Maximum size is 10MB.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    } else if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    next();
+  });
+};
+
+const uploadCompanyLogoMiddleware = (req, res, next) => {
+  uploadCompanyLogo(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          success: false,
+          message: 'File size too large. Maximum size is 5MB.'
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    } else if (err) {
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      });
+    }
+    next();
+  });
 };
 
 module.exports = {
-  uploadResume,
-  uploadProfilePicture,
-  uploadCompanyLogo,
-  uploadDocuments,
-  handleUploadError
+  uploadProfilePicture: uploadProfilePictureMiddleware,
+  uploadResume: uploadResumeMiddleware,
+  uploadCompanyLogo: uploadCompanyLogoMiddleware
 };

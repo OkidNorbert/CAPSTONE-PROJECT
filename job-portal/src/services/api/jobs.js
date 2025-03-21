@@ -32,8 +32,17 @@ export const deleteJob = async (jobId) => {
 
 // Apply for job
 export const applyForJob = async (jobId, applicationData) => {
-  const response = await api.post(`/jobs/${jobId}/apply`, applicationData);
-  return response.data;
+  try {
+    const response = await api.post(`/jobseeker/jobs/${jobId}/apply`, {
+      resumeId: applicationData.resumeId,
+      resumePath: applicationData.resumePath,
+      coverLetter: applicationData.coverLetter || ''
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error applying for job:', error);
+    throw error;
+  }
 };
 
 // Get job applications
@@ -56,6 +65,14 @@ export const getMyApplications = async () => {
 
 // Get employer jobs
 export const getEmployerJobs = async () => {
-  const response = await api.get('/employer/jobs');
-  return response.data;
+  try {
+    const response = await api.get('/employer/jobs');
+    // Ensure we always return an array
+    return Array.isArray(response.data) ? response.data :
+           Array.isArray(response.data.data) ? response.data.data :
+           response.data.jobs || [];
+  } catch (error) {
+    console.error('Error in getEmployerJobs:', error);
+    throw error;
+  }
 }; 

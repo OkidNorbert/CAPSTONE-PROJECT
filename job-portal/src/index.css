@@ -1,29 +1,34 @@
-
+/* Define global styles for the root element */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
+   /* Support both light and dark themes */
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
+  /* Improve text rendering and accessibility */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-
+/* Style anchor (link) elements */
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
+
+/* Change link color on hover */
 a:hover {
   color: #535bf2;
 }
 
+/* Apply global styles to the body */
 body {
   margin: 0;
   display: flex;
@@ -32,11 +37,13 @@ body {
   min-height: 100vh;
 }
 
+/* Style for the main heading */
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
 
+/* Button styling */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -48,22 +55,31 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
+/* Change button border color on hover */
 button:hover {
   border-color: #646cff;
 }
+
+/* Improve button focus visibility for accessibility */
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Styles for light mode */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+
+  /* Change link color on hover in light mode */
   a:hover {
     color: #747bff;
   }
+
+  /* Change button background in light mode */
   button {
     background-color: #f9f9f9;
   }

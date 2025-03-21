@@ -49,7 +49,15 @@ const JobSearch = () => {
       const response = await getJobs(queryParams);
       
       if (response.jobs) {
-        setJobs(response.jobs);
+        // Ensure skills are properly formatted for each job
+        const formattedJobs = response.jobs.map(job => ({
+          ...job,
+          skills: Array.isArray(job.skills) ? job.skills : 
+                 typeof job.skills === 'string' ? job.skills.split(',').map(s => s.trim()) :
+                 []
+        }));
+        
+        setJobs(formattedJobs);
         setPagination(prev => ({
           ...prev,
           totalPages: response.totalPages,
@@ -367,7 +375,7 @@ const JobSearch = () => {
                       )}
                     </div>
                   </div>
-                  {job.skills && job.skills.length > 0 && (
+                  {job.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
                     <div className="mt-4">
                       <div className="flex flex-wrap gap-2">
                         {job.skills.map((skill, index) => (

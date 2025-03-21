@@ -4,8 +4,8 @@ const { protect } = require('../middleware/auth.middleware');
 const { isJobseeker } = require('../middleware/roleCheck.middleware');
 const { validateApplication } = require('../middleware/validation.middleware');
 const { 
-  uploadResume: resumeUploadMiddleware,
-  uploadProfilePicture: profilePictureUploadMiddleware 
+  uploadResume,
+  uploadProfilePicture 
 } = require('../middleware/upload.middleware');
 
 // Import controllers
@@ -19,10 +19,11 @@ const {
 const {
   getProfile,
   updateProfile,
-  uploadResume,
-  uploadProfilePicture,
+  uploadResume: handleResumeUpload,
+  uploadProfilePicture: handleProfilePictureUpload,
   updatePreferences,
-  updateSocialLinks
+  updateSocialLinks,
+  getResumes
 } = require('../controllers/jobseeker/profile.controller');
 
 const {
@@ -36,16 +37,17 @@ const {
 
 // Profile Routes
 router.get('/profile', protect, isJobseeker, getProfile);
-router.put('/profile', protect, isJobseeker, updateProfile);
-router.post('/profile/resume', protect, isJobseeker, resumeUploadMiddleware, uploadResume);
-router.post('/profile/picture', protect, isJobseeker, profilePictureUploadMiddleware, uploadProfilePicture);
+router.put('/profile', protect, isJobseeker, uploadProfilePicture, updateProfile);
+router.get('/profile/resumes', protect, isJobseeker, getResumes);
+router.post('/profile/resume', protect, isJobseeker, uploadResume, handleResumeUpload);
+router.post('/profile/picture', protect, isJobseeker, uploadProfilePicture, handleProfilePictureUpload);
 router.put('/profile/preferences', protect, isJobseeker, updatePreferences);
 router.put('/profile/social-links', protect, isJobseeker, updateSocialLinks);
 
 // Job Search Routes
 router.get('/jobs/search', protect, isJobseeker, searchJobs);
-router.get('/jobs/:id', protect, isJobseeker, getJobDetails);
 router.get('/jobs/recommended', protect, isJobseeker, getRecommendedJobs);
+router.get('/jobs/:id', protect, isJobseeker, getJobDetails);
 
 // Saved Jobs Routes
 router.get('/jobs/saved', protect, isJobseeker, getSavedJobs);
