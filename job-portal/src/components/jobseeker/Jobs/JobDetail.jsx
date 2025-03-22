@@ -78,157 +78,165 @@ const JobDetail = () => {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Job Header */}
-      <div className={cn(
-        "glass-effect p-6 rounded-2xl",
-        "hover-effect"
-      )}>
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{job.title}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                {job.type}
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
-                {job.location}
-              </span>
-              {job.remote && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                  Remote
-                </span>
+    <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-6 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto flex flex-col h-full">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex-grow">
+          <div className="space-y-8 h-full">
+            {/* Job Header */}
+            <div className={cn(
+              "glass-effect p-6 rounded-2xl",
+              "hover-effect"
+            )}>
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div className="flex-grow">
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{job.title}</h1>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                      {job.type}
+                    </span>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                      {job.location}
+                    </span>
+                    {job.remote && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                        Remote
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  {!showApplication && (
+                    <Button 
+                      variant="primary"
+                      onClick={() => setShowApplication(true)}
+                    >
+                      Apply Now
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Application Form */}
+            {showApplication && (
+              <JobApplication 
+                jobId={id} 
+                onSuccess={handleApplySuccess}
+                onCancel={() => setShowApplication(false)}
+              />
+            )}
+
+            {/* Company Info */}
+            <div className={cn(
+              "glass-effect p-6 rounded-2xl",
+              "hover-effect"
+            )}>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Company Information</h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                {job.company?.companyLogo && (
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={job.company.companyLogo} 
+                      alt={job.company.companyName} 
+                      className="w-16 h-16 object-contain rounded-lg"
+                    />
+                  </div>
+                )}
+                <div className="flex-grow">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{job.company?.companyName}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{job.company?.location}</p>
+                </div>
+              </div>
+              {job.company?.companyDescription && (
+                <div className="mt-4">
+                  <p className="text-gray-700 dark:text-gray-300">{job.company.companyDescription}</p>
+                </div>
               )}
             </div>
-          </div>
-          <div>
+
+            {/* Job Details */}
+            <div className={cn(
+              "glass-effect p-6 rounded-2xl",
+              "hover-effect"
+            )}>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Job Details</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Department</h3>
+                  <p className="mt-1 text-base text-gray-900 dark:text-white">{job.department || 'Not specified'}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Experience</h3>
+                  <p className="mt-1 text-base text-gray-900 dark:text-white">
+                    {job.experienceMin} - {job.experienceMax} years
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Salary</h3>
+                  <p className="mt-1 text-base text-gray-900 dark:text-white">
+                    {job.salaryCurrency} {job.salaryMin} - {job.salaryMax} ({job.salaryPeriod})
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.description}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Requirements</h3>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.requirements}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Responsibilities</h3>
+                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.responsibilities}</p>
+                </div>
+                
+                {job.benefits && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Benefits</h3>
+                    <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.benefits}</p>
+                  </div>
+                )}
+                
+                {/* Skills section */}
+                {job.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {job.skills.map((skill, index) => (
+                        <span 
+                          key={index}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Apply Button (Bottom) */}
             {!showApplication && (
-              <Button 
-                variant="primary"
-                onClick={() => setShowApplication(true)}
-              >
-                Apply Now
-              </Button>
+              <div className="flex justify-center mt-8">
+                <Button 
+                  variant="primary"
+                  size="lg"
+                  onClick={() => setShowApplication(true)}
+                >
+                  Apply for this Position
+                </Button>
+              </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Application Form */}
-      {showApplication && (
-        <JobApplication 
-          jobId={id} 
-          onSuccess={handleApplySuccess}
-          onCancel={() => setShowApplication(false)}
-        />
-      )}
-
-      {/* Company Info */}
-      <div className={cn(
-        "glass-effect p-6 rounded-2xl",
-        "hover-effect"
-      )}>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Company Information</h2>
-        <div className="flex items-center gap-4">
-          {job.company?.companyLogo && (
-            <img 
-              src={job.company.companyLogo} 
-              alt={job.company.companyName} 
-              className="w-16 h-16 object-contain rounded-lg"
-            />
-          )}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{job.company?.companyName}</h3>
-            <p className="text-gray-600 dark:text-gray-400">{job.company?.location}</p>
-          </div>
-        </div>
-        {job.company?.companyDescription && (
-          <div className="mt-4">
-            <p className="text-gray-700 dark:text-gray-300">{job.company.companyDescription}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Job Details */}
-      <div className={cn(
-        "glass-effect p-6 rounded-2xl",
-        "hover-effect"
-      )}>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Job Details</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Department</h3>
-            <p className="mt-1 text-base text-gray-900 dark:text-white">{job.department || 'Not specified'}</p>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Experience</h3>
-            <p className="mt-1 text-base text-gray-900 dark:text-white">
-              {job.experienceMin} - {job.experienceMax} years
-            </p>
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Salary</h3>
-            <p className="mt-1 text-base text-gray-900 dark:text-white">
-              {job.salaryCurrency} {job.salaryMin} - {job.salaryMax} ({job.salaryPeriod})
-            </p>
-          </div>
-        </div>
-        
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.description}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Requirements</h3>
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.requirements}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Responsibilities</h3>
-            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.responsibilities}</p>
-          </div>
-          
-          {job.benefits && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Benefits</h3>
-              <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{job.benefits}</p>
-            </div>
-          )}
-          
-          {/* Skills section */}
-          {job.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Skills</h3>
-              <div className="flex flex-wrap gap-2">
-                {job.skills.map((skill, index) => (
-                  <span 
-                    key={index}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-400"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-      
-      {/* Apply Button (Bottom) */}
-      {!showApplication && (
-        <div className="flex justify-center mt-8">
-          <Button 
-            variant="primary"
-            size="lg"
-            onClick={() => setShowApplication(true)}
-          >
-            Apply for this Position
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

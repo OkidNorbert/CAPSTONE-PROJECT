@@ -236,12 +236,12 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
     <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-6 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Company Profile</h1>
-            </div>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Company Profile</h1>
+      </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
               <div className={cn(
                 "bg-white dark:bg-gray-800 rounded-lg p-6",
                 "border border-gray-200 dark:border-gray-700",
@@ -256,87 +256,87 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
                 />
               </div>
 
-              <div className={cn(
-                "glass-effect p-6 rounded-2xl",
-                "hover-effect"
-              )}>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        <div className={cn(
+          "glass-effect p-6 rounded-2xl",
+          "hover-effect"
+        )}>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Company Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="companyName"
-                      value={formData.companyName}
-                      onChange={handleChange}
+              </label>
+              <input
+                type="text"
+                name="companyName"
+                value={formData.companyName}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors.companyName ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       )}
-                      required
-                    />
+                required
+              />
                     {errors.companyName && (
                       <p className="mt-1 text-sm text-red-500">{errors.companyName}</p>
                     )}
-                  </div>
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Industry <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="industry"
-                      value={formData.industry}
-                      onChange={handleChange}
+              </label>
+              <input
+                type="text"
+                name="industry"
+                value={formData.industry}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors.industry ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       )}
-                      required
-                    />
+                required
+              />
                     {errors.industry && (
                       <p className="mt-1 text-sm text-red-500">{errors.industry}</p>
                     )}
-                  </div>
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Company Size
-                    </label>
-                    <input
-                      type="text"
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Company Size
+              </label>
+              <input
+                type="text"
                       name="size"
                       value={formData.size}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Founded Year
-                    </label>
-                    <input
-                      type="text"
-                      name="founded"
-                      value={formData.founded}
-                      onChange={handleChange}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Founded Year
+              </label>
+              <input
+                type="text"
+                name="founded"
+                value={formData.founded}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Website <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="url"
-                      name="website"
-                      value={formData.website}
-                      onChange={handleChange}
+              </label>
+              <input
+                type="url"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors.website ? "border-red-500" : "border-gray-300 dark:border-gray-600"
@@ -346,17 +346,17 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
                     {errors.website && (
                       <p className="mt-1 text-sm text-red-500">{errors.website}</p>
                     )}
-                  </div>
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Location <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors.location ? "border-red-500" : "border-gray-300 dark:border-gray-600"
@@ -366,123 +366,123 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
                     {errors.location && (
                       <p className="mt-1 text-sm text-red-500">{errors.location}</p>
                     )}
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
+        </div>
 
-              <div className={cn(
-                "glass-effect p-6 rounded-2xl",
-                "hover-effect"
-              )}>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Company Details</h2>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Company Description
-                    </label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      rows={4}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
+        <div className={cn(
+          "glass-effect p-6 rounded-2xl",
+          "hover-effect"
+        )}>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Company Details</h2>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Company Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Company Mission
-                    </label>
-                    <textarea
-                      name="mission"
-                      value={formData.mission}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Company Mission
+              </label>
+              <textarea
+                name="mission"
+                value={formData.mission}
+                onChange={handleChange}
+                rows={3}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Company Culture
-                    </label>
-                    <textarea
-                      name="culture"
-                      value={formData.culture}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Company Culture
+              </label>
+              <textarea
+                name="culture"
+                value={formData.culture}
+                onChange={handleChange}
+                rows={3}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Benefits & Perks
-                    </label>
-                    <textarea
-                      name="benefits"
-                      value={formData.benefits}
-                      onChange={handleChange}
-                      rows={3}
-                      className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    />
-                  </div>
-                </div>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Benefits & Perks
+              </label>
+              <textarea
+                name="benefits"
+                value={formData.benefits}
+                onChange={handleChange}
+                rows={3}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
 
-              <div className={cn(
-                "glass-effect p-6 rounded-2xl",
-                "hover-effect"
-              )}>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Social Media Links</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      LinkedIn
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.linkedin"
-                      value={formData.socialMedia.linkedin}
-                      onChange={handleChange}
+        <div className={cn(
+          "glass-effect p-6 rounded-2xl",
+          "hover-effect"
+        )}>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Social Media Links</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                LinkedIn
+              </label>
+              <input
+                type="url"
+                name="socialMedia.linkedin"
+                value={formData.socialMedia.linkedin}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors['socialMedia.linkedin'] ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       )}
-                    />
+              />
                     {errors['socialMedia.linkedin'] && (
                       <p className="mt-1 text-sm text-red-500">{errors['socialMedia.linkedin']}</p>
                     )}
-                  </div>
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Twitter
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.twitter"
-                      value={formData.socialMedia.twitter}
-                      onChange={handleChange}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Twitter
+              </label>
+              <input
+                type="url"
+                name="socialMedia.twitter"
+                value={formData.socialMedia.twitter}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors['socialMedia.twitter'] ? "border-red-500" : "border-gray-300 dark:border-gray-600"
                       )}
-                    />
+              />
                     {errors['socialMedia.twitter'] && (
                       <p className="mt-1 text-sm text-red-500">{errors['socialMedia.twitter']}</p>
                     )}
-                  </div>
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Facebook
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.facebook"
-                      value={formData.socialMedia.facebook}
-                      onChange={handleChange}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Facebook
+              </label>
+              <input
+                type="url"
+                name="socialMedia.facebook"
+                value={formData.socialMedia.facebook}
+                onChange={handleChange}
                       className={cn(
                         "w-full rounded-md border px-3 py-2 focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:text-white",
                         errors['socialMedia.facebook'] ? "border-red-500" : "border-gray-300 dark:border-gray-600"
@@ -604,28 +604,28 @@ const CompanyProfile = ({ initialData, onSaveSuccess }) => {
                       name="settings.applicationSettings.requireCoverLetter"
                       checked={formData.settings.applicationSettings.requireCoverLetter}
                       onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              </div>
+              />
+            </div>
+          </div>
+        </div>
 
-              <div className="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onSaveSuccess}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={loading}
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </form>
+        <div className="flex justify-end space-x-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onSaveSuccess}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+          >
+            {loading ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      </form>
           </div>
         </div>
       </div>

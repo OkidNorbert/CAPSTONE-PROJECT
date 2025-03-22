@@ -66,10 +66,10 @@ const JobList = () => {
 
   return (
     <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-6 bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
+      <div className="max-w-7xl mx-auto flex flex-col h-full">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex-grow">
+          <div className="space-y-6 h-full">
+            <div className="flex flex-wrap justify-between items-center gap-4">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Job Postings
               </h2>
@@ -108,14 +108,16 @@ const JobList = () => {
                     </div>
                   </div>
                 ) : (
-                  jobs.map(job => (
-                    <div key={job.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                      <JobCard
-                        job={job}
-                        onUpdate={fetchJobs}
-                      />
-                    </div>
-                  ))
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {jobs.map(job => (
+                      <div key={job.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                        <JobCard
+                          job={job}
+                          onUpdate={fetchJobs}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}

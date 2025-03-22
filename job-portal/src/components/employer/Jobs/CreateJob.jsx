@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '../../../utils/styles';
 import { toast } from 'react-toastify';
+import Button from '../../shared/UI/Button';
 
 const CreateJob = ({ onSubmit, onCancel }) => {
   const [jobData, setJobData] = useState({
