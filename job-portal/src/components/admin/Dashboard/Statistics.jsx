@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { cn } from '../../../utils/styles';
+import { getDashboardStats } from '../../../services/api/admin';
 
 const StatCard = ({ title, value, trend, icon, color }) => (
   <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -34,9 +34,12 @@ const Statistics = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get('/api/admin/statistics');
+        const data = await getDashboardStats();
         setStats({
-          ...response.data,
+          totalUsers: data.users.total,
+          activeJobs: data.jobs.active,
+          totalApplications: data.applications.total,
+          completedHires: data.applications.accepted,
           loading: false,
           error: null
         });
@@ -67,48 +70,38 @@ const Statistics = () => {
 
   if (stats.error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900 p-4 rounded-lg">
-        <p className="text-red-800 dark:text-red-200">{stats.error}</p>
+      <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-4 rounded-lg">
+        {stats.error}
       </div>
     );
   }
 
-  const statCards = [
-    {
-      title: 'Total Users',
-      value: stats.totalUsers.toLocaleString(),
-      trend: 12,
-      icon: '👥',
-      color: 'bg-blue-100 dark:bg-blue-900'
-    },
-    {
-      title: 'Active Jobs',
-      value: stats.activeJobs.toLocaleString(),
-      trend: 8,
-      icon: '💼',
-      color: 'bg-green-100 dark:bg-green-900'
-    },
-    {
-      title: 'Total Applications',
-      value: stats.totalApplications.toLocaleString(),
-      trend: -5,
-      icon: '📝',
-      color: 'bg-purple-100 dark:bg-purple-900'
-    },
-    {
-      title: 'Completed Hires',
-      value: stats.completedHires.toLocaleString(),
-      trend: 15,
-      icon: '🎯',
-      color: 'bg-yellow-100 dark:bg-yellow-900'
-    }
-  ];
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {statCards.map((stat, index) => (
-        <StatCard key={index} {...stat} />
-      ))}
+      <StatCard
+        title="Total Users"
+        value={stats.totalUsers}
+        icon="👥"
+        color="bg-blue-100 dark:bg-blue-900/20"
+      />
+      <StatCard
+        title="Active Jobs"
+        value={stats.activeJobs}
+        icon="💼"
+        color="bg-green-100 dark:bg-green-900/20"
+      />
+      <StatCard
+        title="Total Applications"
+        value={stats.totalApplications}
+        icon="📝"
+        color="bg-yellow-100 dark:bg-yellow-900/20"
+      />
+      <StatCard
+        title="Completed Hires"
+        value={stats.completedHires}
+        icon="✅"
+        color="bg-purple-100 dark:bg-purple-900/20"
+      />
     </div>
   );
 };

@@ -26,9 +26,10 @@ const Navbar = () => {
       case 'admin':
         return (
           <>
-            <Link to="/admin/reports" className={commonLinkClasses}>Dashboard</Link>
+            <Link to="/admin" className={commonLinkClasses}>Dashboard</Link>
             <Link to="/admin/users" className={commonLinkClasses}>Users</Link>
             <Link to="/admin/jobs" className={commonLinkClasses}>Jobs</Link>
+            <Link to="/admin/reports" className={commonLinkClasses}>Reports</Link>
             <Link to="/admin/settings" className={commonLinkClasses}>Settings</Link>
           </>
         );
@@ -68,9 +69,10 @@ const Navbar = () => {
       case 'admin':
         return (
           <>
-            <Link to="/admin/reports" className="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</Link>
+            <Link to="/admin" className="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Dashboard</Link>
             <Link to="/admin/users" className="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Users</Link>
             <Link to="/admin/jobs" className="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Jobs</Link>
+            <Link to="/admin/reports" className="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Reports</Link>
             <Link to="/admin/settings" className="block px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">Settings</Link>
           </>
         );

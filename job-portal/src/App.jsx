@@ -25,6 +25,9 @@ import AdminSettings from './components/admin/Settings/AdminSettings';
 import JobDetailPage from './pages/JobDetailPage';
 import MyApplicationsPage from './pages/MyApplicationsPage';
 import ApplicationDetailPage from './pages/ApplicationDetailPage';
+import AdminDashboard from './components/admin/Dashboard/AdminDashboard';
+import UserManagement from './components/admin/Dashboard/UserManagement';
+import JobManagement from './components/admin/Dashboard/JobManagement';
 
 function App() {
   return (
@@ -122,6 +125,14 @@ function App() {
 
                     {/* Admin Routes */}
                     <Route 
+                      path="/admin" 
+                      element={
+                        <PrivateRoute role="admin">
+                          <AdminDashboard />
+                        </PrivateRoute>
+                      } 
+                    />
+                    <Route 
                       path="/admin/reports" 
                       element={
                         <PrivateRoute role="admin">
@@ -134,6 +145,22 @@ function App() {
                       element={
                         <PrivateRoute role="admin">
                           <AdminSettings />
+                        </PrivateRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/users" 
+                      element={
+                        <PrivateRoute role="admin">
+                          <UserManagement />
+                        </PrivateRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/jobs" 
+                      element={
+                        <PrivateRoute role="admin">
+                          <JobManagement />
                         </PrivateRoute>
                       } 
                     />
