@@ -27,12 +27,12 @@ const Contact = () => {
     {
       icon: '📍',
       title: 'Visit Us',
-      details: ['Uganda Christian University', 'Mukono', 'Uganda']
+      details: ['Uganda Christian University', ' Mukono', 'Uganda']
     },
     {
       icon: '📞',
       title: 'Call Us',
-      details: ['+256 771032224', 'Mon - Fri: 9AM - 6PM']
+      details: ['+256 78413754', 'Mon - Fri: 9AM - 6PM']
     },
     {
       icon: '✉️',

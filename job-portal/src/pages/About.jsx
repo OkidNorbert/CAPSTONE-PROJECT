@@ -9,33 +9,33 @@ const teamMembers = [
   },//me
   {
     name: 'Moses Nkangi',
-    role: 'CTO',
+    role: 'Security and Authentication',
     image: './images/Moses.jpeg',
-    bio: 'Tech enthusiast driving innovation in recruitment.',
+    bio: 'Tech enthusiast driving innovation in recruitment and cybersecurity awareness',
   },
   {
     name: 'Denise Priscila M',
-    role: 'Head of HR',
+    role: 'Frontend Developer',
     image: './images/Denise.jpeg',
-    bio: 'Expert in human resources and talent acquisition.',
+    bio: 'Expert in UI/UX development and code splitting',
   },
   {
     name: 'Absolom Orianga',
-    role: 'Head of HR',
+    role: 'Backend Developer',
     image: './images/Absolom.jpeg',
-    bio: 'Expert in human resources and talent acquisition.',
+    bio: 'Expert in API development and management.',
   },
   {
     name: 'Puoch Mabor',
-    role: 'Head of HR',
+    role: 'Tester and Deployment',
     image: './images/Puoch.jpeg',
-    bio: 'Expert in human resources and talent acquisition.',
+    bio: 'Expert in testing and deployment of an applications',
   },
   {
     name: 'Anna Akum',
-    role: 'Head of HR',
+    role: 'Database Manager',
     image: './images/Anna.jpeg',
-    bio: 'Expert in human resources and talent acquisition.',
+    bio: 'Expert in query optimization and efficient data storage.',
   }
 
 ];
