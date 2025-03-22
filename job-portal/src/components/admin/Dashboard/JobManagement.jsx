@@ -109,9 +109,9 @@ const JobManagement = () => {
     <div className="space-y-4">
       {/* Search Bar */}
       <div className="flex justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search jobs..."
+          <input
+            type="text"
+            placeholder="Search jobs..."
           value={searchTerm}
           onChange={handleSearch}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
@@ -226,7 +226,7 @@ const JobManagement = () => {
           >
             Previous
           </button>
-          <button
+              <button
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
             className={cn(
@@ -237,7 +237,7 @@ const JobManagement = () => {
             )}
           >
             Next
-          </button>
+              </button>
         </div>
       )}
     </div>

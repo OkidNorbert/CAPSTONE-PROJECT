@@ -36,6 +36,12 @@ const {
   uploadProfilePicture: uploadPicture
 } = require('../controllers/admin/profile.controller');
 
+const {
+  getJobs,
+  updateJobStatus,
+  deleteJob
+} = require('../controllers/admin/jobManagement.controller');
+
 // Dashboard and System Routes
 router.get('/dashboard/stats', protect, isAdmin, getDashboardStats);
 router.get('/system/config', protect, isAdmin, getSystemConfig);
@@ -46,6 +52,11 @@ router.get('/users', protect, isAdmin, getUsers);
 router.get('/users/:id', protect, isAdmin, getUserDetails);
 router.put('/users/:id/status', protect, isAdmin, updateUserStatus);
 router.delete('/users/:id', protect, isAdmin, deleteUser);
+
+// Job Management Routes
+router.get('/jobs', protect, isAdmin, getJobs);
+router.put('/jobs/:id/status', protect, isAdmin, updateJobStatus);
+router.delete('/jobs/:id', protect, isAdmin, deleteJob);
 
 // Category Management Routes
 router.get('/categories', protect, isAdmin, manageCategories);
