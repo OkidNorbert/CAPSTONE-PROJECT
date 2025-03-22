@@ -1,35 +1,33 @@
-const User = require('../../models/user.model');
-const Job = require('../../models/job.model');
-const Application = require('../../models/application.model');
-const Category = require('../../models/Category.model');
+const { User, Job, Application, Category } = require('../../models');
 
 // Get dashboard statistics
 exports.getDashboardStats = async (req, res) => {
   try {
     const stats = {
       users: {
-        total: await User.countDocuments(),
-        jobseekers: await User.countDocuments({ role: 'jobseeker' }),
-        employers: await User.countDocuments({ role: 'employer' })
+        total: await User.count(),
+        jobseekers: await User.count({ where: { role: 'jobseeker' } }),
+        employers: await User.count({ where: { role: 'employer' } })
       },
       jobs: {
-        total: await Job.countDocuments(),
-        active: await Job.countDocuments({ status: 'published' }),
-        draft: await Job.countDocuments({ status: 'draft' }),
-        closed: await Job.countDocuments({ status: 'closed' })
+        total: await Job.count(),
+        active: await Job.count({ where: { status: 'published' } }),
+        draft: await Job.count({ where: { status: 'draft' } }),
+        closed: await Job.count({ where: { status: 'closed' } })
       },
       applications: {
-        total: await Application.countDocuments(),
-        pending: await Application.countDocuments({ status: 'pending' }),
-        reviewing: await Application.countDocuments({ status: 'reviewing' }),
-        shortlisted: await Application.countDocuments({ status: 'shortlisted' }),
-        accepted: await Application.countDocuments({ status: 'accepted' }),
-        rejected: await Application.countDocuments({ status: 'rejected' })
+        total: await Application.count(),
+        pending: await Application.count({ where: { status: 'pending' } }),
+        reviewing: await Application.count({ where: { status: 'reviewing' } }),
+        shortlisted: await Application.count({ where: { status: 'shortlisted' } }),
+        accepted: await Application.count({ where: { status: 'accepted' } }),
+        rejected: await Application.count({ where: { status: 'rejected' } })
       }
     };
 
     res.json(stats);
   } catch (error) {
+    console.error('Error getting dashboard stats:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -83,33 +81,48 @@ exports.manageCategories = async (req, res) => {
 
     switch (method) {
       case 'GET':
-        const categories = await Category.find()
-          .populate('parentCategory', 'name')
-          .sort('name');
+        const categories = await Category.findAll({
+          include: [{
+            model: Category,
+            as: 'parentCategory',
+            attributes: ['id', 'name']
+          }],
+          order: [['name', 'ASC']]
+        });
         return res.json(categories);
 
       case 'POST':
-        const newCategory = new Category({
+        const newCategory = await Category.create({
           ...req.body,
           createdBy: req.user.id
         });
-        await newCategory.save();
         return res.status(201).json(newCategory);
 
       case 'PUT':
-        const updatedCategory = await Category.findByIdAndUpdate(
-          id,
-          { ...req.body, updatedAt: Date.now() },
-          { new: true }
+        const [updated] = await Category.update(
+          { 
+            ...req.body,
+            updatedAt: new Date()
+          },
+          { 
+            where: { id },
+            returning: true
+          }
         );
-        if (!updatedCategory) {
+        
+        if (!updated) {
           return res.status(404).json({ message: 'Category not found' });
         }
+        
+        const updatedCategory = await Category.findByPk(id);
         return res.json(updatedCategory);
 
       case 'DELETE':
-        const deletedCategory = await Category.findByIdAndDelete(id);
-        if (!deletedCategory) {
+        const deleted = await Category.destroy({
+          where: { id }
+        });
+        
+        if (!deleted) {
           return res.status(404).json({ message: 'Category not found' });
         }
         return res.json({ message: 'Category deleted successfully' });
@@ -118,6 +131,7 @@ exports.manageCategories = async (req, res) => {
         return res.status(405).json({ message: 'Method not allowed' });
     }
   } catch (error) {
+    console.error('Error managing categories:', error);
     res.status(500).json({ message: error.message });
   }
 };

@@ -21,6 +21,7 @@ const applicationRoutes = require('./src/routes/application.routes');
 const notificationRoutes = require('./src/routes/notification.routes');
 const employerRoutes = require('./src/routes/employer.routes');
 const jobseekerRoutes = require('./src/routes/jobseeker.routes');
+const adminRoutes = require('./src/routes/admin.routes');
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/employer', employerRoutes);
 app.use('/api/jobseeker', jobseekerRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handler
 app.use(errorHandler);

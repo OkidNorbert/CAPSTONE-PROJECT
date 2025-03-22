@@ -1,151 +1,141 @@
 import React, { useState, useEffect } from 'react';
-import { cn } from '../../../utils/styles';
+import { toast } from 'react-toastify';
 import { getAdminJobs, updateJobStatus, toggleJobFeatured, deleteJob } from '../../../services/api/admin';
+import { cn } from '../../../utils/styles';
 
 const JobManagement = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [showJobModal, setShowJobModal] = useState(false);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    total: 0,
-    pages: 1
-  });
-
-  useEffect(() => {
-    fetchJobs();
-  }, [pagination.page, statusFilter]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchJobs = async () => {
     try {
-      const params = {
-        page: pagination.page,
-        limit: 10,
-        status: statusFilter !== 'all' ? statusFilter : undefined,
-        search: searchQuery || undefined
-      };
-      
-      const response = await getAdminJobs(params);
-      setJobs(response.jobs);
-      setPagination({
-        page: response.page,
-        total: response.total,
-        pages: response.pages
-      });
+      setLoading(true);
       setError(null);
-    } catch (err) {
+      const response = await getAdminJobs({
+        page: currentPage,
+        search: searchTerm,
+        limit: 10
+      });
+
+      setJobs(response.jobs || []);
+      setTotalPages(Math.ceil((response.total || 0) / 10));
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
       setError('Failed to load jobs');
-      console.error('Error fetching jobs:', err);
+      toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchJobs();
+  }, [currentPage, searchTerm]);
+
   const handleStatusChange = async (jobId, newStatus) => {
     try {
       await updateJobStatus(jobId, newStatus);
-      fetchJobs(); // Refresh the list
-    } catch (err) {
-      setError('Failed to update job status');
+      toast.success('Job status updated successfully');
+      fetchJobs();
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      toast.error('Failed to update job status');
     }
   };
 
   const handleFeaturedToggle = async (jobId, featured) => {
     try {
       await toggleJobFeatured(jobId, featured);
-      fetchJobs(); // Refresh the list
-    } catch (err) {
-      setError('Failed to update job featured status');
+      toast.success(`Job ${featured ? 'featured' : 'unfeatured'} successfully`);
+      fetchJobs();
+    } catch (error) {
+      console.error('Error toggling job featured status:', error);
+      toast.error('Failed to update job featured status');
     }
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (window.confirm('Are you sure you want to delete this job?')) {
-      try {
-        await deleteJob(jobId);
-        fetchJobs(); // Refresh jobs list
-      } catch (err) {
-        setError('Failed to delete job');
-      }
+    if (!window.confirm('Are you sure you want to delete this job?')) return;
+
+    try {
+      await deleteJob(jobId);
+      toast.success('Job deleted successfully');
+      fetchJobs();
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      toast.error('Failed to delete job');
     }
   };
 
   const handleSearch = (e) => {
-    e.preventDefault();
-    setPagination(prev => ({ ...prev, page: 1 }));
-    fetchJobs();
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="space-y-4">
         <div className="animate-pulse space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+            </div>
           ))}
         </div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 p-4 rounded-lg">
+        <p className="text-sm font-medium">{error}</p>
+        <button
+          onClick={fetchJobs}
+          className="mt-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Job Management</h2>
+    <div className="space-y-4">
+      {/* Search Bar */}
+      <div className="flex justify-between items-center">
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        />
       </div>
 
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 text-red-800 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSearch} className="mb-6 flex gap-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search jobs..."
-            className="w-full px-4 py-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <select
-          className="px-4 py-2 rounded-lg border dark:bg-gray-700 dark:border-gray-600"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="all">All Status</option>
-          <option value="published">Published</option>
-          <option value="draft">Draft</option>
-          <option value="closed">Closed</option>
-        </select>
-      </form>
-
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      {/* Jobs List */}
+      <div className="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-900">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Job Title
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Company
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Featured
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Posted
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -153,55 +143,61 @@ const JobManagement = () => {
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {jobs.map((job) => (
               <tr key={job.id}>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {job.title}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {job.location}
+                    {job.type} • {job.location}
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 dark:text-white">
-                    {job.companyName}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    {job.company?.companyLogo ? (
+                      <img
+                        className="h-10 w-10 rounded-full"
+                        src={job.company.companyLogo}
+                        alt={job.company.companyName}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                        <span className="text-gray-500 dark:text-gray-400">
+                          {job.company?.companyName?.[0]}
+                        </span>
+                      </div>
+                    )}
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {job.company?.companyName}
+                      </div>
+                    </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <select
                     value={job.status}
                     onChange={(e) => handleStatusChange(job.id, e.target.value)}
-                    className="text-sm rounded border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+                    className="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
-                    <option value="published">Published</option>
-                    <option value="draft">Draft</option>
-                    <option value="closed">Closed</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="expired">Expired</option>
                   </select>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 whitespace-nowrap">
                   <button
                     onClick={() => handleFeaturedToggle(job.id, !job.featured)}
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    className={cn(
+                      "px-3 py-1 rounded-full text-sm font-medium",
                       job.featured
-                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                    }`}
+                        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                    )}
                   >
-                    {job.featured ? 'Featured' : 'Not Featured'}
+                    {job.featured ? '⭐ Featured' : 'Feature'}
                   </button>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(job.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 text-right text-sm font-medium">
-                  <button
-                    onClick={() => {
-                      setSelectedJob(job);
-                      setShowJobModal(true);
-                    }}
-                    className="text-primary-600 hover:text-primary-900 dark:text-primary-400 dark:hover:text-primary-300 mr-4"
-                  >
-                    View
-                  </button>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleDeleteJob(job.id)}
                     className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
@@ -216,70 +212,32 @@ const JobManagement = () => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <div className="text-sm text-gray-700 dark:text-gray-300">
-          Showing {jobs.length} of {pagination.total} jobs
-        </div>
-        <div className="flex space-x-2">
+      {totalPages > 1 && (
+        <div className="flex justify-center space-x-2 mt-4">
           <button
-            onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
-            disabled={pagination.page === 1}
-            className="px-3 py-1 rounded border disabled:opacity-50"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={cn(
+              "px-4 py-2 rounded-lg text-sm font-medium",
+              currentPage === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
+                : "bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            )}
           >
             Previous
           </button>
           <button
-            onClick={() => setPagination(prev => ({ ...prev, page: Math.min(prev.pages, prev.page + 1) }))}
-            disabled={pagination.page === pagination.pages}
-            className="px-3 py-1 rounded border disabled:opacity-50"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className={cn(
+              "px-4 py-2 rounded-lg text-sm font-medium",
+              currentPage === totalPages
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
+                : "bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+            )}
           >
             Next
           </button>
-        </div>
-      </div>
-
-      {/* Job Details Modal */}
-      {showJobModal && selectedJob && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-2xl w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Job Details</h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500">Title</p>
-                <p className="font-medium">{selectedJob.title}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Company</p>
-                <p className="font-medium">{selectedJob.companyName}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Location</p>
-                <p className="font-medium">{selectedJob.location}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Status</p>
-                <p className="font-medium capitalize">{selectedJob.status}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Posted Date</p>
-                <p className="font-medium">
-                  {new Date(selectedJob.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Description</p>
-                <p className="font-medium whitespace-pre-wrap">{selectedJob.description}</p>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowJobModal(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-              >
-                Close
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

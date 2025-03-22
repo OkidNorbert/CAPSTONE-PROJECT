@@ -7,6 +7,7 @@ const Education = require('./education.model');
 const Notification = require('./notification.model');
 const Interview = require('./interview.model');
 const Note = require('./note.model');
+const Category = require('./category.model');
 
 // Define associations
 User.hasMany(Job, {
@@ -108,5 +109,6 @@ module.exports = {
   Education,
   Notification,
   Interview,
-  Note
+  Note,
+  Category
 }; 
