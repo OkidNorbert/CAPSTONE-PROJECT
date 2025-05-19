@@ -1,75 +1,48 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../config/database');
 
-const categorySchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Category name is required'],
-    unique: true,
-    trim: true
+const Category = sequelize.define('Category', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
   },
-  slug: {
-    type: String,
-    unique: true,
-    lowercase: true
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
   },
   description: {
-    type: String,
-    trim: true
+    type: DataTypes.TEXT,
+    allowNull: true
   },
-  icon: {
-    type: String,
-    default: '💼'
+  parentCategoryId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Categories',
+      key: 'id'
+    }
   },
-  status: {
-    type: String,
-    enum: ['active', 'inactive'],
-    default: 'active'
-  },
-  parentCategory: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    default: null
-  },
-  subCategories: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category'
-  }],
-  jobCount: {
-    type: Number,
-    default: 0
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
   createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'id'
+    }
   }
+}, {
+  timestamps: true,
+  tableName: 'Categories'
 });
 
-// Create slug from name before saving
-categorySchema.pre('save', function(next) {
-  if (this.isModified('name')) {
-    this.slug = this.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '-');
-  }
-  this.updatedAt = Date.now();
-  next();
-});
+// Self-referential relationship for parent-child categories
+Category.belongsTo(Category, { as: 'parentCategory', foreignKey: 'parentCategoryId' });
+Category.hasMany(Category, { as: 'subCategories', foreignKey: 'parentCategoryId' });
 
-// Update job count
-categorySchema.methods.updateJobCount = async function() {
-  const Job = mongoose.model('Job');
-  const count = await Job.countDocuments({ category: this._id, status: 'published' });
-  this.jobCount = count;
-  await this.save();
-};
-
-const Category = mongoose.model('Category', categorySchema);
-
-module.exports = Category;
+module.exports = Category; 
